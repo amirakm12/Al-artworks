@@ -6,7 +6,9 @@
 #include <chrono>
 #include <future>
 #include <vector>
+#ifdef ULTIMATE_OPENMP_ENABLED
 #include <omp.h>
+#endif
 
 using namespace aisis;
 
@@ -35,13 +37,13 @@ public:
             m_hyperEngine = std::make_unique<HyperPerformanceEngine>();
             bool success = m_hyperEngine->initialize();
             if (success) {
-                m_hyperEngine->setPerformanceMode(HyperPerformanceEngine::LUDICROUS_SPEED);
+                m_hyperEngine->setPerformanceMode(HyperPerformanceEngine::PerformanceMode::LUDICROUS_SPEED);
                 m_hyperEngine->enableQuantumOptimization(true);
-                m_hyperEngine->enableNeuralAcceleration(true);
-                m_hyperEngine->enablePredictiveCaching(true);
-                m_hyperEngine->enableTimeDialation(true);
-                m_hyperEngine->enableQuantumParallelism(true);
-                m_hyperEngine->enableHolographicRendering(true);
+                m_hyperEngine->enableMultiGPUAcceleration(true);
+                m_hyperEngine->enableQuantumOptimization(true);
+                m_hyperEngine->enableHyperRayTracing(true);
+                m_hyperEngine->enableLudicrousSpeed(true);
+                m_hyperEngine->setAccelerationFactor(1000.0f);
                 std::cout << "✅ HYPER PERFORMANCE ENGINE: LUDICROUS SPEED ACHIEVED" << std::endl;
             }
             return success;
