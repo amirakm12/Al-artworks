@@ -129,7 +129,7 @@ def with_recovery(self, context: Dict[str, Any] = None):
         return wrapper
     return decorator 
 
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit, QComboBox, QPushButton
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTextEdit, QComboBox, QPushButton
 
 class AgentExplainDialog(QDialog):
     def __init__(self, agent_registry, parent=None):

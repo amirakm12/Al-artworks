@@ -1,9 +1,9 @@
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QTextEdit, QPushButton, QLineEdit,
-    QListWidget, QListWidgetItem, QFrame, QComboBox, QScrollArea, QMenu, QAction, QFileDialog, QSizePolicy
+    QListWidget, QListWidgetItem, QFrame, QComboBox, QScrollArea, QMenu, QFileDialog, QSizePolicy
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QTimer, QDateTime, QSize
-from PyQt6.QtGui import QColor, QPalette, QIcon, QPixmap, QFont, QShortcut, QKeySequence
+from PySide6.QtCore import Qt, Signal, QTimer, QDateTime, QSize
+from PySide6.QtGui import QColor, QPalette, QIcon, QPixmap, QFont, QShortcut, QKeySequence, QAction
 from .context_manager import ContextManager
 import os
 import time
@@ -12,10 +12,10 @@ class ContextPanel(QFrame):
     """
     Advanced Context Panel: modern, interactive, visually rich, and highly usable.
     """
-    context_updated = pyqtSignal(dict)
-    progress_updated = pyqtSignal(int, str)
-    state_changed = pyqtSignal(str)
-    notification = pyqtSignal(str, str)  # (message, level)
+    context_updated = Signal(dict)
+    progress_updated = Signal(int, str)
+    state_changed = Signal(str)
+    notification = Signal(str, str)  # (message, level)
 
     def __init__(self, context_manager: ContextManager, parent=None):
         super().__init__(parent)

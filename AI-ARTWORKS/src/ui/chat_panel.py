@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QListWidgetItem
-from PyQt6.QtCore import Qt, pyqtSignal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QListWidget, QListWidgetItem
+from PySide6.QtCore import Qt, Signal
 from src.agents.llm_client import LLMClient
 
 class ChatPanel(QWidget):
@@ -8,10 +8,10 @@ class ChatPanel(QWidget):
     Displays chat history, supports workflow refinement, undo, and branching.
     Integrates with LLMClient for AI responses and suggestions.
     """
-    message_sent = pyqtSignal(str)
-    workflow_refined = pyqtSignal(list)
-    undo_requested = pyqtSignal()
-    branch_requested = pyqtSignal(list)
+    message_sent = Signal(str)
+    workflow_refined = Signal(list)
+    undo_requested = Signal()
+    branch_requested = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
