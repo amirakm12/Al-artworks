@@ -1,16 +1,16 @@
 import asyncio
 import websockets
 import json
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5.QtCore import QObject, Signal, Qt
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QApplication)
 import sys
 import threading
 from collab import AutomergeCollab
 
 class CollabClient(QObject):
-    context_received = pyqtSignal(dict)
-    log_received = pyqtSignal(str)
-    presence_received = pyqtSignal(list)
+    context_received = Signal(dict)
+    log_received = Signal(str)
+    presence_received = Signal(list)
 
     def __init__(self, url="ws://localhost:8765"):
         super().__init__()

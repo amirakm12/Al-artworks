@@ -11,8 +11,8 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 
-# PyQt6 imports for modern UI
-from PyQt6.QtWidgets import (
+# PySide6 imports for modern UI
+from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGridLayout, QStackedWidget, QTabWidget, QSplitter, QScrollArea,
     QPushButton, QLabel, QLineEdit, QTextEdit, QComboBox, QSlider,
@@ -21,17 +21,17 @@ from PyQt6.QtWidgets import (
     QToolBar, QDockWidget, QFileDialog, QMessageBox, QDialog,
     QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsPixmapItem
 )
-from PyQt6.QtCore import (
-    Qt, QTimer, QPropertyAnimation, QEasingCurve, QThread, pyqtSignal,
+from PySide6.QtCore import (
+    Qt, QTimer, QPropertyAnimation, QEasingCurve, QThread, Signal,
     QRect, QPoint, QSize, QEvent, QPropertyAnimation, QParallelAnimationGroup
 )
-from PyQt6.QtGui import (
+from PySide6.QtGui import (
     QPalette, QColor, QFont, QPixmap, QIcon, QPainter, QBrush,
     QPen, QLinearGradient, QRadialGradient, QFontDatabase,
     QKeySequence, QAction, QCursor, QDragEnterEvent, QDropEvent
 )
 
-# If PyQt6 is not installed, run: pip install PyQt6
+# If PySide6 is not installed, run: pip install PySide6
 
 
 class Theme(Enum):

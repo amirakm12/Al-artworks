@@ -260,3 +260,7 @@ async def artistic_restoration(image_path: str) -> Dict[str, Any]:
 __version__ = "3.0.0"
 __author__ = "Al-artworks Development Team"
 __description__ = "Advanced AI system for image restoration and forensic analysis"
+
+# Export the main class
+AI_ARTWORK = AlArtworks
+__all__ = ['AlArtworks', 'AI_ARTWORK', 'forensic_analysis', 'scientific_restoration', 'artistic_restoration']

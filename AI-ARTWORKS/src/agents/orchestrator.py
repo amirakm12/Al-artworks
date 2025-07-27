@@ -30,23 +30,47 @@ from .self_critique import SelfCritiqueAgent
 from .forensic_analysis import ForensicAnalysisAgent
 from .context_aware_restoration import ContextAwareRestorationAgent
 from .adaptive_enhancement import AdaptiveEnhancementAgent
-from .hyper_orchestrator import HyperOrchestrator
-
 class ReasoningMode:
     TREE_OF_THOUGHT = 'tree_of_thought'
 
-class HyperOrchestrator:
+class OrchestratorAgent(BaseAgent):
+    """Main orchestrator agent that coordinates all other agents"""
+    
     def __init__(self):
-        self.name = "HyperOrchestrator"
-        self.status = 'IDLE'
+        super().__init__("OrchestratorAgent")
         self.reasoning_mode = ReasoningMode.TREE_OF_THOUGHT
         self.self_correction_enabled = True
+        self.agents = {}
+        
     async def initialize(self):
+        """Initialize the orchestrator and register agents"""
+        await super().initialize()
+        
+        # Register available agents
+        self.agents = {
+            "image_restoration": ImageRestorationAgent(),
+            "style_aesthetic": StyleAestheticAgent(), 
+            "semantic_editing": SemanticEditingAgent()
+        }
+        
+        # Initialize all agents
+        for agent in self.agents.values():
+            await agent.initialize()
+            
         return True
+        
     async def register_agent(self, agent):
-        pass
+        """Register a new agent"""
+        self.agents[agent.name] = agent
+        
     def get_orchestrator_status(self):
-        return {"registered_agents": ["ImageRestorationAgent", "StyleAestheticAgent", "SemanticEditingAgent"]}
+        """Get orchestrator status"""
+        return {
+            "registered_agents": list(self.agents.keys()),
+            "status": self.status,
+            "reasoning_mode": self.reasoning_mode
+        }
+        
     async def _analyze_task(self, desc, params):
         return {"task_components": [], "confidence": 1.0}
     async def _tree_of_thought_analysis(self, desc, params):

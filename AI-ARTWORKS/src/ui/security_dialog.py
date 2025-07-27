@@ -3,13 +3,13 @@ Security Dialog
 Handles user authentication and API key management UI
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QLineEdit, QTabWidget,
     QWidget, QFormLayout, QMessageBox,
     QTableWidget, QTableWidgetItem
 )
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 from typing import Optional, Dict, Any
 
 from src.core.security import SecurityManager

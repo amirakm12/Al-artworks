@@ -43,4 +43,38 @@ class GPUManager:
                 "free_mb": 0
             }
 
+class ModelLoader:
+    """Handles loading and managing AI models with GPU optimization"""
+    
+    def __init__(self, gpu_manager):
+        self.gpu_manager = gpu_manager
+        self.loaded_models = {}
+        
+    def load_model(self, model_name, model_class, *args, **kwargs):
+        """Load a model and move it to the appropriate device"""
+        if model_name in self.loaded_models:
+            return self.loaded_models[model_name]
+            
+        try:
+            model = model_class(*args, **kwargs)
+            model = model.to(self.gpu_manager.device)
+            self.loaded_models[model_name] = model
+            logger.info(f"Loaded model {model_name} on {self.gpu_manager.device}")
+            return model
+        except Exception as e:
+            logger.error(f"Failed to load model {model_name}: {e}")
+            raise
+            
+    def unload_model(self, model_name):
+        """Unload a model to free memory"""
+        if model_name in self.loaded_models:
+            del self.loaded_models[model_name]
+            self.gpu_manager.clear_cache()
+            logger.info(f"Unloaded model {model_name}")
+            
+    def get_loaded_models(self):
+        """Get list of currently loaded models"""
+        return list(self.loaded_models.keys())
+
 gpu_manager = GPUManager()
+model_loader = ModelLoader(gpu_manager)
