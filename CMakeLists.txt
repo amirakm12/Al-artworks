@@ -23,6 +23,41 @@ if(WIN32)
     # Set Windows subsystem
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
     
+    # Fix for Clang/lld-link compatibility on Windows
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # Force use of Microsoft linker instead of lld-link to avoid library compatibility issues
+        set(CMAKE_LINKER "link.exe")
+        set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_LINKER> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> /out:<TARGET> <LINK_LIBRARIES>")
+        set(CMAKE_CXX_LINK_EXECUTABLE "<CMAKE_LINKER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> /out:<TARGET> <LINK_LIBRARIES>")
+        
+        # Alternative: Configure lld-link with proper library search paths
+        # Uncomment the following lines if you prefer to use lld-link with proper configuration
+        # find_program(WINDOWS_KITS_DIR NAMES "Windows Kits" PATHS "C:/Program Files (x86)" "C:/Program Files")
+        # if(WINDOWS_KITS_DIR)
+        #     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LIBPATH:\"${WINDOWS_KITS_DIR}/10/Lib/10.0.22621.0/ucrt/x64\"")
+        #     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LIBPATH:\"${WINDOWS_KITS_DIR}/10/Lib/10.0.22621.0/um/x64\"")
+        # endif()
+        
+        # Find Visual Studio installation
+        find_program(VSWHERE_PATH "vswhere.exe" PATHS "C:/Program Files (x86)/Microsoft Visual Studio/Installer")
+        if(VSWHERE_PATH)
+            execute_process(
+                COMMAND "${VSWHERE_PATH}" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+                OUTPUT_VARIABLE VS_INSTALL_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            if(VS_INSTALL_PATH)
+                # Add MSVC library paths
+                file(GLOB MSVC_VERSIONS "${VS_INSTALL_PATH}/VC/Tools/MSVC/*")
+                if(MSVC_VERSIONS)
+                    list(GET MSVC_VERSIONS -1 LATEST_MSVC)
+                    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LIBPATH:\"${LATEST_MSVC}/lib/x64\"")
+                    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LIBPATH:\"${LATEST_MSVC}/lib/x64\"")
+                endif()
+            endif()
+        endif()
+    endif()
+    
     # Windows libraries
     set(WINDOWS_LIBRARIES
         kernel32
