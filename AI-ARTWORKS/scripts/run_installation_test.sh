@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================"
-echo "AISIS Full Installation Test"
+echo "AI-ARTWORKS Full Installation Test"
 echo "========================================"
 echo
 

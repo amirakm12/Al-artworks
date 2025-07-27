@@ -1,5 +1,5 @@
 """
-Core functionality tests for AISIS
+Core functionality tests for AI-ARTWORKS
 """
 
 import asyncio

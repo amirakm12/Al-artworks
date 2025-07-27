@@ -1,8 +1,8 @@
-# AISIS Comprehensive Restoration Pipeline
+# AI-ARTWORKS Comprehensive Restoration Pipeline
 
 ## Overview
 
-AISIS (AI Creative Studio) is a professional-grade image restoration and enhancement system featuring a comprehensive multi-agent architecture with 24 specialized agents. The system provides scientific, forensic, and artistic restoration capabilities that rival human expert restoration work.
+AI-ARTWORKS (AI Creative Studio) is a professional-grade image restoration and enhancement system featuring a comprehensive multi-agent architecture with 24 specialized agents. The system provides scientific, forensic, and artistic restoration capabilities that rival human expert restoration work.
 
 ## Architecture
 
@@ -279,11 +279,11 @@ adaptive_enhancement → auto_retouch → self_critique
 ### Basic Usage
 ```python
 import asyncio
-from aisis import AISIS
+from AI-ARTWORKS import AI-ARTWORKS
 
 async def restore_image():
-    async with AISIS() as aisis:
-        result = await aisis.restore_image(
+    async with AI-ARTWORKS() as AI-ARTWORKS:
+        result = await AI-ARTWORKS.restore_image(
             "damaged_image.jpg",
             "restored_image.jpg",
             restoration_type="comprehensive"
@@ -296,8 +296,8 @@ asyncio.run(restore_image())
 ### Scientific Restoration
 ```python
 async def scientific_restoration():
-    async with AISIS() as aisis:
-        result = await aisis.scientific_restoration("artwork.jpg")
+    async with AI-ARTWORKS() as AI-ARTWORKS:
+        result = await AI-ARTWORKS.scientific_restoration("artwork.jpg")
         print(f"Scientific analysis: {result['forensic_report']}")
 
 asyncio.run(scientific_restoration())
@@ -306,8 +306,8 @@ asyncio.run(scientific_restoration())
 ### Single Agent Usage
 ```python
 async def forensic_analysis():
-    async with AISIS() as aisis:
-        result = await aisis.execute_single_agent(
+    async with AI-ARTWORKS() as AI-ARTWORKS:
+        result = await AI-ARTWORKS.execute_single_agent(
             "forensic_analysis",
             "suspicious_image.jpg"
         )
@@ -319,14 +319,14 @@ asyncio.run(forensic_analysis())
 ### Custom Pipeline
 ```python
 async def custom_restoration():
-    async with AISIS() as aisis:
+    async with AI-ARTWORKS() as AI-ARTWORKS:
         pipeline = [
             "forensic_analysis",
             "material_recognition",
             "context_aware_restoration",
             "adaptive_enhancement"
         ]
-        result = await aisis.execute_custom_pipeline(
+        result = await AI-ARTWORKS.execute_custom_pipeline(
             pipeline,
             "input_image.jpg"
         )
@@ -394,6 +394,6 @@ asyncio.run(custom_restoration())
 
 ## Conclusion
 
-AISIS represents a comprehensive solution for professional image restoration, combining scientific rigor with artistic sensitivity. The multi-agent architecture ensures that each restoration task receives the appropriate level of attention and expertise, while the orchestration system maintains consistency and quality throughout the process.
+AI-ARTWORKS represents a comprehensive solution for professional image restoration, combining scientific rigor with artistic sensitivity. The multi-agent architecture ensures that each restoration task receives the appropriate level of attention and expertise, while the orchestration system maintains consistency and quality throughout the process.
 
 The system is designed to complement human expertise rather than replace it, providing tools and insights that enhance the restoration process while maintaining the highest standards of quality and authenticity. 

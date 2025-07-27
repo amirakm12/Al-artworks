@@ -11,7 +11,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 // Forward declarations
 class GPUAccelerator;
@@ -525,4 +525,4 @@ private:
     std::atomic<float> m_neuromorphicPowerConsumption{1.0f}; // 1W
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

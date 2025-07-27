@@ -7,7 +7,7 @@
 #include <functional>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 // Forward declarations
 class QuantumPhysicsEngine;
@@ -500,4 +500,4 @@ private:
     std::atomic<uint32_t> m_nextFieldId{1};
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

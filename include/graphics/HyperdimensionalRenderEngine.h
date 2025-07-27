@@ -10,7 +10,7 @@
 #include <complex>
 #include <array>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * 🌈 HYPERDIMENSIONAL RENDER ENGINE v6.0.0 - IMPOSSIBLE GRAPHICS EDITION
@@ -362,4 +362,4 @@ private:
     void optimizeForHardware();
 };
 
-} // namespace aisis
+} // namespace AI_ARTWORKS

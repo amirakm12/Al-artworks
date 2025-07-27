@@ -12,7 +12,7 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * @brief ULTIMATE Thread Pool - Quantum-enhanced parallel processing
@@ -226,4 +226,4 @@ private:
     size_t m_numThreads;
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

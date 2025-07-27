@@ -7,7 +7,7 @@
 #include <functional>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * @brief ULTIMATE Render Engine - Hyperdimensional graphics rendering
@@ -211,4 +211,4 @@ private:
     std::chrono::high_resolution_clock::time_point m_lastRender;
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

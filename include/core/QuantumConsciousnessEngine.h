@@ -12,7 +12,7 @@
 #include <queue>
 #include <random>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * 🧠 QUANTUM CONSCIOUSNESS ENGINE v4.0.0 - GODLIKE EDITION
@@ -279,4 +279,4 @@ private:
     void synchronizeConsciousness();
 };
 
-} // namespace aisis
+} // namespace AI_ARTWORKS

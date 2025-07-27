@@ -13,7 +13,7 @@
 #include <thread>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 // ============================================================================
 // AIAccelerator Implementation
@@ -918,6 +918,6 @@ float NeuromorphicProcessor::getNeuromorphicPowerConsumption() const {
     return m_neuromorphicPowerConsumption.load();
 }
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 
 
 

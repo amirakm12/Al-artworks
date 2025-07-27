@@ -11,7 +11,7 @@
 #include <complex>
 #include <future>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * 👑 OMNIPOTENCE ENGINE v5.0.0 - ULTIMATE GODLIKE EDITION
@@ -343,4 +343,4 @@ private:
     bool hasEnoughEnergy(float required) const;
 };
 
-} // namespace aisis
+} // namespace AI_ARTWORKS

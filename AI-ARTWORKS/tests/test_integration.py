@@ -1,5 +1,5 @@
 """
-Integration tests for AISIS
+Integration tests for AI-ARTWORKS
 Tests end-to-end workflows and cross-component interactions
 """
 

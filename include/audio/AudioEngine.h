@@ -7,7 +7,7 @@
 #include <functional>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * @brief ULTIMATE Audio Engine - Transcendent audio processing
@@ -207,4 +207,4 @@ private:
     std::chrono::high_resolution_clock::time_point m_lastProcess;
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 
