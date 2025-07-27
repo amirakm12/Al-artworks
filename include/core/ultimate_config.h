@@ -246,4 +246,4 @@ extern "C" {
 }
 #endif
 
-#endif /* ULTIMATE_CONFIG_H */ 
+#endif /* ULTIMATE_CONFIG_H */

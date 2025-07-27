@@ -154,4 +154,4 @@ typedef struct {
 }
 #endif
 
-#endif /* ULTIMATE_TYPES_H */ 
+#endif /* ULTIMATE_TYPES_H */

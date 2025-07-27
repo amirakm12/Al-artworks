@@ -41,6 +41,7 @@ typedef struct {
     size_t total_size;
     size_t block_size;
     uint32_t max_blocks;
+    uint32_t block_count;
     ultimate_pool_type_t type;
     const char* name;
     bool thread_safe;
@@ -48,13 +49,14 @@ typedef struct {
 
 /* Memory statistics */
 typedef struct {
-    size_t total_heap_size;
-    size_t used_heap_size;
-    size_t free_heap_size;
+    size_t total_size;
+    size_t used_size;
+    size_t free_size;
     size_t largest_free_block;
-    uint32_t allocation_count;
+    uint32_t alloc_count;
     uint32_t free_count;
-    uint32_t fragmentation_percent;
+    size_t min_free_size;
+    float fragmentation_percent;
     uint32_t peak_usage;
 } ultimate_heap_stats_t;
 
@@ -202,4 +204,4 @@ ultimate_error_t ultimate_memory_configure(const ultimate_memory_config_t* confi
 }
 #endif
 
-#endif /* ULTIMATE_MEMORY_H */ 
+#endif /* ULTIMATE_MEMORY_H */

@@ -1,27 +1,27 @@
 # Examples CMakeLists.txt
+cmake_minimum_required(VERSION 3.20)
 
-# AI Acceleration Demo
-add_executable(ai_acceleration_demo ai_acceleration_demo.cpp)
-target_link_libraries(ai_acceleration_demo ultimate_core)
+# Add executable for image processing demo
+add_executable(image_processing_demo
+    image_processing_demo.c
+)
 
-# Set output directory
-set_target_properties(ai_acceleration_demo PROPERTIES
+# Link with the main library
+target_link_libraries(image_processing_demo
+    ultimate_core
+)
+
+# Set target properties
+set_target_properties(image_processing_demo PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
-# Basic usage example
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/basic_usage.cpp")
-    add_executable(basic_usage basic_usage.cpp)
-    target_link_libraries(basic_usage ultimate_core)
-    
-    set_target_properties(basic_usage PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    )
+# Add math library for Linux
+if(NOT WIN32)
+    target_link_libraries(image_processing_demo m)
 endif()
 
-# Print examples information
-message(STATUS "Building examples:")
-message(STATUS "  - ai_acceleration_demo")
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/basic_usage.cpp")
-    message(STATUS "  - basic_usage")
-endif() 
+# Install the demo
+install(TARGETS image_processing_demo
+    RUNTIME DESTINATION bin
+) 

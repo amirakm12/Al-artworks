@@ -89,6 +89,11 @@ file(GLOB_RECURSE CORE_SOURCES
     "src/core/*.cpp"
 )
 
+file(GLOB_RECURSE GRAPHICS_SOURCES
+    "src/graphics/*.c"
+    "src/graphics/*.cpp"
+)
+
 file(GLOB_RECURSE HARDWARE_SOURCES
     "src/hardware/*.c"
     "src/hardware/*.cpp"
@@ -107,6 +112,7 @@ file(GLOB_RECURSE AI_SOURCES
 # Create the main library
 add_library(ultimate_core STATIC
     ${CORE_SOURCES}
+    ${GRAPHICS_SOURCES}
     ${HARDWARE_SOURCES}
     ${NEURAL_SOURCES}
     ${AI_SOURCES}
