@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Xlinker --dependency-file=CMakeFiles/ultimate_system.dir/link.d CMakeFiles/ultimate_system.dir/src/main_minimal.cpp.o -o bin/ultimate_system  lib/libultimate.a -lpthread -ldl -lm

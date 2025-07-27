@@ -221,6 +221,35 @@ extern "C" {
     #include <thread>
     #include <mutex>
     #include <condition_variable>
+#elif defined(ULTIMATE_LINUX)
+    /* Linux equivalents and POSIX includes */
+    #include <unistd.h>
+    #include <pthread.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <sys/time.h>
+    #include <signal.h>
+    #include <thread>
+    #include <mutex>
+    #include <condition_variable>
+    
+    /* Define Windows-style types for cross-platform compatibility */
+    #ifndef DWORD
+    #define DWORD uint32_t
+    #endif
+    #ifndef HANDLE
+    #define HANDLE void*
+    #endif
+    #ifndef BOOL
+    #define BOOL int
+    #endif
+    #ifndef TRUE
+    #define TRUE 1
+    #endif
+    #ifndef FALSE
+    #define FALSE 0
+    #endif
 #endif
 
 /* Assert macro */

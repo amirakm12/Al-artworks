@@ -5,7 +5,9 @@
 #include <vector>
 #include <atomic>
 #include <future>
+#ifdef ULTIMATE_OPENMP_ENABLED
 #include <omp.h>
+#endif
 
 #include "core/Application.h"
 #include "core/PerformanceManager.h"
@@ -39,8 +41,12 @@ int main(int argc, char* argv[]) {
 
         // Configure OpenMP for ULTIMATE performance
         int numThreads = std::thread::hardware_concurrency();
+#ifdef ULTIMATE_OPENMP_ENABLED
         omp_set_num_threads(numThreads * 4); // 4x thread multiplication for quantum processing
         std::cout << "⚡ Configured OpenMP with " << (numThreads * 4) << " quantum threads" << std::endl;
+#else
+        std::cout << "⚡ Using " << numThreads << " standard threads (OpenMP not available)" << std::endl;
+#endif
 
         // Initialize ULTIMATE thread pool for transcendent operations
         auto threadPool = std::make_unique<ThreadPool>(numThreads * 8); // 8x thread pool for reality manipulation
