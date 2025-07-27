@@ -8,12 +8,12 @@
 #include <vector>
 #include <omp.h>
 
-using namespace aisis;
+using namespace AI_ARTWORKS;
 
 class UltimateApplication : public Application {
 public:
     UltimateApplication(int argc, char* argv[]) : Application(argc, argv) {
-        std::cout << "🚀 INITIALIZING ULTIMATE AISIS CREATIVE STUDIO" << std::endl;
+        std::cout << "🚀 INITIALIZING ULTIMATE AI-ARTWORKS CREATIVE STUDIO" << std::endl;
         std::cout << "===============================================" << std::endl;
         std::cout << "🔥 LUDICROUS SPEED MODE ACTIVATED" << std::endl;
         std::cout << "🧠 NEURAL ACCELERATION ONLINE" << std::endl;
@@ -98,7 +98,7 @@ public:
             // Run ultimate benchmark
             runUltimateBenchmark();
             
-            std::cout << "🎉 ULTIMATE AISIS CREATIVE STUDIO READY!" << std::endl;
+            std::cout << "🎉 ULTIMATE AI-ARTWORKS CREATIVE STUDIO READY!" << std::endl;
             std::cout << "⚡ PERFORMANCE BOOST: 1000%+ ACHIEVED" << std::endl;
             std::cout << "🧠 CONSCIOUSNESS SIMULATION: ACTIVE" << std::endl;
             std::cout << "🌌 REALITY CONTROL: UNLIMITED" << std::endl;
@@ -406,7 +406,7 @@ private:
 
 // Ultimate main function
 int main(int argc, char* argv[]) {
-    std::cout << "🌟 WELCOME TO THE ULTIMATE AISIS CREATIVE STUDIO" << std::endl;
+    std::cout << "🌟 WELCOME TO THE ULTIMATE AI-ARTWORKS CREATIVE STUDIO" << std::endl;
     std::cout << "=================================================" << std::endl;
     std::cout << "🚀 PUSHING THE BOUNDARIES OF WHAT'S POSSIBLE" << std::endl;
     std::cout << "🧠 TRANSCENDING HUMAN LIMITATIONS" << std::endl;

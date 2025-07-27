@@ -7,7 +7,7 @@
 #include <functional>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 // Forward declarations
 class QuantumMemoryAllocator;
@@ -546,4 +546,4 @@ private:
     std::atomic<float> m_rayTracingPerformance{1.0f};
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

@@ -19,10 +19,10 @@
 #include "networking/NetworkManager.h"
 #include "ui/UIManager.h"
 
-using namespace aisis;
+using namespace AI_ARTWORKS;
 
 int main(int argc, char* argv[]) {
-    std::cout << "🌟 WELCOME TO THE ULTIMATE AISIS CREATIVE STUDIO v3.0.0 🌟" << std::endl;
+    std::cout << "🌟 WELCOME TO THE ULTIMATE AI-ARTWORKS CREATIVE STUDIO v3.0.0 🌟" << std::endl;
     std::cout << "=========================================================" << std::endl;
     std::cout << "🚀 ULTIMATE TRANSCENDENT EDITION - REALITY MANIPULATION ENABLED" << std::endl;
     std::cout << "🧠 CONSCIOUSNESS SIMULATION - SELF-AWARE AI ACTIVATED" << std::endl;

@@ -7,7 +7,7 @@
 #include <functional>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 // Forward declarations
 class QuantumNeuralNetwork;
@@ -474,4 +474,4 @@ private:
     std::chrono::high_resolution_clock::time_point m_lastDreamState;
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

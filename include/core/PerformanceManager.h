@@ -7,7 +7,7 @@
 #include <functional>
 #include <chrono>
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
  * @brief ULTIMATE Performance Manager - Performance optimization and monitoring
@@ -180,4 +180,4 @@ private:
     std::chrono::high_resolution_clock::time_point m_lastMonitor;
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

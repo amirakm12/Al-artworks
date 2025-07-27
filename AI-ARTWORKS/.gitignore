@@ -26,7 +26,7 @@ env/
 ENV/
 .env
 .venv
-aisis.env
+AI-ARTWORKS.env
 
 # IDE
 .idea/
@@ -91,4 +91,4 @@ tmp/
 output/
 results/
 cache/
-.aisis_cache/ 
+.AI-ARTWORKS_cache/ 

@@ -8,7 +8,7 @@
 #include <chrono>
 
 // Forward declarations for ULTIMATE engines
-namespace aisis {
+namespace AI_ARTWORKS {
     class RenderEngine;
     class AudioEngine;
     class AIProcessor;
@@ -19,10 +19,10 @@ namespace aisis {
     class RealityManipulationEngine;
 }
 
-namespace aisis {
+namespace AI_ARTWORKS {
 
 /**
- * @brief ULTIMATE Application - Central hub for the AISIS Creative Studio
+ * @brief ULTIMATE Application - Central hub for the AI-ARTWORKS Creative Studio
  * 
  * This is the main application class that orchestrates all ULTIMATE features:
  * - 🚀 Ludicrous Speed Mode with quantum acceleration
@@ -289,4 +289,4 @@ private:
     std::chrono::high_resolution_clock::time_point m_lastRender;
 };
 
-} // namespace aisis 
+} // namespace AI_ARTWORKS 

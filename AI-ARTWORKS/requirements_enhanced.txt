@@ -1,4 +1,4 @@
-# AISIS Enhanced Requirements
+# AI-ARTWORKS Enhanced Requirements
 # Core dependencies for the advanced AI image system
 
 # PyQt6 for modern UI

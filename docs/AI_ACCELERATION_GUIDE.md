@@ -173,7 +173,7 @@ cmake --build . --config Release
 #include "ai/AIAccelerator.h"
 #include <iostream>
 
-using namespace aisis;
+using namespace AI-ARTWORKS;
 
 int main() {
     // Create AI accelerator

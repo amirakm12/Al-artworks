@@ -1,5 +1,5 @@
 """
-Cross-App Automation for AISIS
+Cross-App Automation for AI-ARTWORKS
 Automate workflows across creative applications
 (Photoshop, GIMP, Blender).
 """

@@ -5,7 +5,7 @@
 #include <thread>
 #include <iomanip>
 
-using namespace aisis;
+using namespace AI_ARTWORKS;
 
 /**
  * @brief AI Acceleration Demo - Comprehensive demonstration of AI acceleration capabilities
