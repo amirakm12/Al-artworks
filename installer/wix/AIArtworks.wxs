@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <Product Id="*"
+           Name="AI-ARTWORKS Ultimate Creative Studio"
+           Language="1033"
+           Version="1.0.0.0"
+           Manufacturer="AI-ARTWORKS"
+           UpgradeCode="87654321-4321-4321-4321-210987654321">
+
+    <Package InstallerVersion="500" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Description="AI-ARTWORKS Ultimate Creative Studio - Professional AI Art Generation"
+             Comments="Advanced AI-powered creative suite with neural processing capabilities"
+             Keywords="AI,Art,Creative,Neural,Processing,Studio" />
+
+    <!-- Upgrade logic -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <!-- Media and cab files -->
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Properties -->
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/your-org/ai-artworks" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://updates.ai-artworks.com" />
+    <Property Id="ARPHELPTELEPHONE" Value="1-800-AI-ARTWORKS" />
+    <Property Id="ARPSIZE" Value="2097152" />
+    <Property Id="MSIRESTARTMANAGERCONTROL" Value="Disable" />
+    
+    <!-- Custom properties for configuration -->
+    <Property Id="PYTHON_DETECTED" Value="0" />
+    <Property Id="CUDA_DETECTED" Value="0" />
+    <Property Id="GPU_INFO" Value="" />
+    <Property Id="LAUNCH_AFTER_INSTALL" Value="1" />
+
+    <!-- Registry searches for runtime detection -->
+    <Property Id="PYTHON_PATH">
+      <RegistrySearch Id="PythonPath" Root="HKLM" Key="SOFTWARE\Python\PythonCore\3.12\InstallPath" Type="raw" />
+    </Property>
+
+    <!-- Directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="AI-ARTWORKS">
+          
+          <!-- Core application files -->
+          <Directory Id="BinFolder" Name="bin">
+            <Component Id="CoreExecutables" Guid="11111111-1111-1111-1111-111111111111">
+              <File Id="MainPyScript" Source="$(var.ProjectDir)\..\AI-ARTWORKS\main.py" KeyPath="yes" />
+              <File Id="LaunchScript" Source="$(var.ProjectDir)\..\AI-ARTWORKS\launch.py" />
+              <File Id="SetupScript" Source="$(var.ProjectDir)\..\AI-ARTWORKS\setup.py" />
+              
+              <!-- Environment variables -->
+              <Environment Id="AIArtworksPath" Name="AI_ARTWORKS_HOME" Value="[INSTALLFOLDER]" 
+                          Permanent="no" Part="all" Action="set" System="yes" />
+              <Environment Id="PathEntry" Name="PATH" Value="[BinFolder]" 
+                          Permanent="no" Part="last" Action="set" System="yes" />
+            </Component>
+          </Directory>
+
+          <!-- Python source files -->
+          <Directory Id="SrcFolder" Name="src">
+            <Component Id="PythonSources" Guid="22222222-2222-2222-2222-222222222222">
+              <File Id="InitPy" Source="$(var.ProjectDir)\..\AI-ARTWORKS\src\__init__.py" KeyPath="yes" />
+              <!-- Add more Python files as needed -->
+            </Component>
+            
+            <Directory Id="UIFolder" Name="ui">
+              <Component Id="UIComponents" Guid="33333333-3333-3333-3333-333333333333">
+                <File Id="MainWindowPy" Source="$(var.ProjectDir)\..\AI-ARTWORKS\src\ui\modern_interface.py" KeyPath="yes" />
+                <File Id="ModelZooDialog" Source="$(var.ProjectDir)\..\AI-ARTWORKS\src\ui\model_zoo_dialog.py" />
+              </Component>
+            </Directory>
+
+            <Directory Id="CoreFolder" Name="core">
+              <Component Id="CoreComponents" Guid="44444444-4444-4444-4444-444444444444">
+                <File Id="ConfigPy" Source="$(var.ProjectDir)\..\AI-ARTWORKS\src\core\config.py" KeyPath="yes" />
+              </Component>
+            </Directory>
+          </Directory>
+
+          <!-- Configuration files -->
+          <Directory Id="ConfigFolder" Name="config">
+            <Component Id="ConfigFiles" Guid="55555555-5555-5555-5555-555555555555">
+              <File Id="RequirementsTxt" Source="$(var.ProjectDir)\..\AI-ARTWORKS\requirements.txt" KeyPath="yes" />
+              <File Id="PyProjectToml" Source="$(var.ProjectDir)\..\AI-ARTWORKS\pyproject.toml" />
+              
+              <!-- Create application config directory -->
+              <CreateFolder Directory="ConfigFolder" />
+              <RemoveFolder Id="RemoveConfigFolder" Directory="ConfigFolder" On="uninstall" />
+            </Component>
+          </Directory>
+
+          <!-- Documentation -->
+          <Directory Id="DocsFolder" Name="docs">
+            <Component Id="Documentation" Guid="66666666-6666-6666-6666-666666666666">
+              <File Id="ReadmeMd" Source="$(var.ProjectDir)\..\AI-ARTWORKS\README.md" KeyPath="yes" />
+              <File Id="LicenseFile" Source="$(var.ProjectDir)\..\AI-ARTWORKS\LICENSE" />
+              <File Id="ChangelogMd" Source="$(var.ProjectDir)\..\AI-ARTWORKS\CHANGELOG.md" />
+            </Component>
+          </Directory>
+
+          <!-- Models directory (for downloaded AI models) -->
+          <Directory Id="ModelsFolder" Name="models">
+            <Component Id="ModelsDirectory" Guid="77777777-7777-7777-7777-777777777777">
+              <CreateFolder Directory="ModelsFolder" />
+              <RemoveFolder Id="RemoveModelsFolder" Directory="ModelsFolder" On="uninstall" />
+              
+              <!-- Registry entry for models path -->
+              <RegistryValue Root="HKCU" Key="SOFTWARE\AI-ARTWORKS\Settings" 
+                           Name="ModelsPath" Type="string" Value="[ModelsFolder]" KeyPath="yes" />
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <!-- Start Menu shortcuts -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="AI-ARTWORKS">
+          <Component Id="ApplicationShortcut" Guid="88888888-8888-8888-8888-888888888888">
+            <Shortcut Id="ApplicationStartMenuShortcut"
+                     Name="AI-ARTWORKS Creative Studio"
+                     Description="AI-powered creative suite for professional art generation"
+                     Target="[#MainPyScript]"
+                     WorkingDirectory="INSTALLFOLDER"
+                     Icon="AppIcon.ico" />
+            
+            <Shortcut Id="UninstallShortcut"
+                     Name="Uninstall AI-ARTWORKS"
+                     Description="Uninstall AI-ARTWORKS Creative Studio"
+                     Target="[SystemFolder]msiexec.exe"
+                     Arguments="/x [ProductCode]" />
+            
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\AI-ARTWORKS" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <!-- Desktop shortcut -->
+      <Directory Id="DesktopFolder">
+        <Component Id="DesktopShortcut" Guid="99999999-9999-9999-9999-999999999999">
+          <Shortcut Id="ApplicationDesktopShortcut"
+                   Name="AI-ARTWORKS"
+                   Description="AI-ARTWORKS Creative Studio"
+                   Target="[#MainPyScript]"
+                   WorkingDirectory="INSTALLFOLDER"
+                   Icon="AppIcon.ico" />
+          <RegistryValue Root="HKCU" Key="Software\AI-ARTWORKS" Name="desktop" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </Directory>
+
+    <!-- Features -->
+    <Feature Id="ProductFeature" Title="AI-ARTWORKS Core" Level="1" 
+             Description="Core AI-ARTWORKS application files and components">
+      <ComponentRef Id="CoreExecutables" />
+      <ComponentRef Id="PythonSources" />
+      <ComponentRef Id="UIComponents" />
+      <ComponentRef Id="CoreComponents" />
+      <ComponentRef Id="ConfigFiles" />
+      <ComponentRef Id="Documentation" />
+      <ComponentRef Id="ModelsDirectory" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <Feature Id="DesktopShortcutFeature" Title="Desktop Shortcut" Level="1"
+             Description="Create desktop shortcut for quick access">
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <!-- Icons -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.ProjectDir)\resources\app_icon.ico" />
+
+    <!-- Registry entries for application settings -->
+    <Component Id="RegistryEntries" Guid="AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA" Directory="INSTALLFOLDER">
+      <RegistryKey Root="HKLM" Key="SOFTWARE\AI-ARTWORKS">
+        <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
+        <RegistryValue Name="Version" Type="string" Value="[ProductVersion]" />
+        <RegistryValue Name="PythonDetected" Type="string" Value="[PYTHON_DETECTED]" />
+        <RegistryValue Name="CudaDetected" Type="string" Value="[CUDA_DETECTED]" />
+        <RegistryValue Name="GPUInfo" Type="string" Value="[GPU_INFO]" />
+      </RegistryKey>
+      
+      <!-- File associations -->
+      <RegistryKey Root="HKCR" Key=".aiart">
+        <RegistryValue Type="string" Value="AIArtworks.Project" />
+      </RegistryKey>
+      <RegistryKey Root="HKCR" Key="AIArtworks.Project">
+        <RegistryValue Type="string" Value="AI-ARTWORKS Project File" />
+      </RegistryKey>
+      <RegistryKey Root="HKCR" Key="AIArtworks.Project\shell\open\command">
+        <RegistryValue Type="string" Value="&quot;[#MainPyScript]&quot; &quot;%1&quot;" />
+      </RegistryKey>
+    </Component>
+
+    <!-- Custom actions for post-install configuration -->
+    <Binary Id="CustomActionsDLL" SourceFile="$(var.ProjectDir)\scripts\CustomActions.dll" />
+    
+    <CustomAction Id="SetupPythonEnvironment" 
+                  BinaryKey="CustomActionsDLL" 
+                  DllEntry="SetupPythonEnvironment" 
+                  Execute="deferred" 
+                  Impersonate="no" />
+    
+    <CustomAction Id="DownloadModels" 
+                  BinaryKey="CustomActionsDLL" 
+                  DllEntry="DownloadAIModels" 
+                  Execute="deferred" 
+                  Impersonate="no" />
+
+    <CustomAction Id="LaunchApplication"
+                  FileKey="MainPyScript"
+                  ExeCommand=""
+                  Execute="immediate"
+                  Impersonate="yes"
+                  Return="asyncNoWait" />
+
+    <!-- Install sequences -->
+    <InstallExecuteSequence>
+      <Custom Action="SetupPythonEnvironment" After="InstallFiles">NOT Installed</Custom>
+      <Custom Action="DownloadModels" After="SetupPythonEnvironment">NOT Installed AND DOWNLOAD_MODELS="1"</Custom>
+      <Custom Action="LaunchApplication" After="InstallFinalize">NOT Installed AND LAUNCH_AFTER_INSTALL="1"</Custom>
+    </InstallExecuteSequence>
+
+    <!-- UI references -->
+    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <!-- License agreement -->
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)\resources\license.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.ProjectDir)\resources\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.ProjectDir)\resources\dialog.bmp" />
+
+  </Product>
+</Wix>

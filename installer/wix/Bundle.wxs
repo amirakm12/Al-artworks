@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <Bundle Name="AI-ARTWORKS Ultimate Creative Studio"
+          Version="1.0.0.0"
+          Manufacturer="AI-ARTWORKS"
+          UpgradeCode="12345678-1234-1234-1234-123456789012"
+          AboutUrl="https://github.com/your-org/ai-artworks"
+          HelpUrl="https://docs.ai-artworks.com"
+          UpdateUrl="https://updates.ai-artworks.com">
+
+    <!-- Bundle Icon and Theme -->
+    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
+      <bal:WixStandardBootstrapperApplication
+        LicenseFile="$(var.ProjectDir)\resources\license.rtf"
+        LogoFile="$(var.ProjectDir)\resources\logo.png"
+        ThemeFile="$(var.ProjectDir)\ui\theme.xml"
+        LocalizationFile="$(var.ProjectDir)\ui\localization.wxl"
+        SuppressOptionsUI="no"
+        SuppressDowngradeFailure="no" />
+    </BootstrapperApplicationRef>
+
+    <!-- Variables for system detection -->
+    <Variable Name="InstallFolder" Type="string" Value="[ProgramFiles6432Folder]AI-ARTWORKS" />
+    <Variable Name="LaunchAfterInstall" Type="numeric" Value="1" />
+    
+    <!-- Registry searches for prerequisite detection -->
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Python\PythonCore\3.10\InstallPath" 
+                        Variable="Python310Installed" Result="exists" />
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Python\PythonCore\3.11\InstallPath" 
+                        Variable="Python311Installed" Result="exists" />
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Python\PythonCore\3.12\InstallPath" 
+                        Variable="Python312Installed" Result="exists" />
+    
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" 
+                        Value="Installed" Variable="VCRedist2015Installed" Result="exists" />
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" 
+                        Value="Version" Variable="VCRedistVersion" />
+                        
+    <util:RegistrySearch Root="HKLM" Key="SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0000" 
+                        Value="DriverDesc" Variable="GPU0Description" />
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\NVIDIA Corporation\Global\CUDA" 
+                        Variable="CUDAInstalled" Result="exists" />
+    <util:RegistrySearch Root="HKLM" Key="SOFTWARE\NVIDIA Corporation\Global\CUDA" 
+                        Value="Version" Variable="CUDAVersion" />
+
+    <!-- File searches for additional detection -->
+    <util:FileSearch Path="[WindowsFolder]System32\nvapi64.dll" Variable="NVAPIExists" Result="exists" />
+    <util:FileSearch Path="[WindowsFolder]System32\amdxc64.dll" Variable="AMDExists" Result="exists" />
+    
+    <!-- System requirement checks -->
+    <Chain>
+      <!-- System Requirements Check Package -->
+      <ExePackage Id="SystemCheck"
+                  DisplayName="System Requirements Check"
+                  SourceFile="$(var.ProjectDir)\scripts\SystemCheck.exe"
+                  InstallCommand="/S /INSTALL"
+                  UninstallCommand="/S /UNINSTALL"
+                  RepairCommand="/S /REPAIR"
+                  Vital="yes"
+                  Permanent="no"
+                  InstallCondition="1">
+        <ExitCode Value="0" Behavior="success" />
+        <ExitCode Value="1" Behavior="error" />
+      </ExePackage>
+
+      <!-- Python 3.10+ Installation -->
+      <ExePackage Id="Python312"
+                  DisplayName="Python 3.12.0 (64-bit)"
+                  SourceFile="$(var.ProjectDir)\dependencies\python-3.12.0-amd64.exe"
+                  InstallCommand="/quiet InstallAllUsers=1 PrependPath=1 Include_test=0 Include_tcltk=0"
+                  UninstallCommand="/uninstall /quiet"
+                  DetectCondition="Python312Installed OR Python311Installed OR Python310Installed"
+                  InstallCondition="NOT (Python312Installed OR Python311Installed OR Python310Installed)"
+                  Vital="yes"
+                  Permanent="no">
+        <ExitCode Value="0" Behavior="success" />
+        <ExitCode Value="3010" Behavior="successReboot" />
+      </ExePackage>
+
+      <!-- Visual C++ Redistributable 2015-2022 -->
+      <ExePackage Id="VCRedist2022"
+                  DisplayName="Microsoft Visual C++ 2015-2022 Redistributable (x64)"
+                  SourceFile="$(var.ProjectDir)\dependencies\VC_redist.x64.exe"
+                  InstallCommand="/install /quiet /norestart"
+                  UninstallCommand="/uninstall /quiet"
+                  DetectCondition="VCRedist2015Installed AND (VCRedistVersion >= v14.30.30704)"
+                  InstallCondition="NOT (VCRedist2015Installed AND (VCRedistVersion >= v14.30.30704))"
+                  Vital="yes"
+                  Permanent="no">
+        <ExitCode Value="0" Behavior="success" />
+        <ExitCode Value="3010" Behavior="successReboot" />
+      </ExePackage>
+
+      <!-- CUDA Toolkit (conditional on NVIDIA GPU) -->
+      <ExePackage Id="CUDAToolkit"
+                  DisplayName="NVIDIA CUDA Toolkit 12.3"
+                  SourceFile="$(var.ProjectDir)\dependencies\cuda_12.3.0_windows_x86_64.exe"
+                  InstallCommand="-s nvcc_12.3 cuobjdump_12.3 nvprune_12.3 cupti_12.3 gpu_library_advisor_12.3 memcheck_12.3 nvdisasm_12.3 nvprof_12.3 visual_profiler_12.3 visual_studio_integration_12.3"
+                  UninstallCommand="/uninstall /quiet"
+                  DetectCondition="CUDAInstalled AND (CUDAVersion >= v12.0)"
+                  InstallCondition="NVAPIExists AND NOT (CUDAInstalled AND (CUDAVersion >= v12.0))"
+                  Vital="no"
+                  Permanent="no">
+        <ExitCode Value="0" Behavior="success" />
+        <ExitCode Value="3010" Behavior="successReboot" />
+      </ExePackage>
+
+      <!-- Main Application MSI -->
+      <MsiPackage Id="AIArtworksCore"
+                  DisplayName="AI-ARTWORKS Core Application"
+                  SourceFile="$(var.ProjectDir)\AIArtworks.msi"
+                  Vital="yes"
+                  Permanent="no"
+                  InstallCondition="1">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+        <MsiProperty Name="PYTHON_DETECTED" Value="[Python312Installed] OR [Python311Installed] OR [Python310Installed]" />
+        <MsiProperty Name="CUDA_DETECTED" Value="[CUDAInstalled]" />
+        <MsiProperty Name="GPU_INFO" Value="[GPU0Description]" />
+      </MsiPackage>
+
+      <!-- C++ Runtime Components MSI -->
+      <MsiPackage Id="AIArtworksCPP"
+                  DisplayName="AI-ARTWORKS C++ Runtime"
+                  SourceFile="$(var.ProjectDir)\AIArtworksCPP.msi"
+                  Vital="yes"
+                  Permanent="no"
+                  InstallCondition="1">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+      </MsiPackage>
+
+      <!-- AI Models Package (Large files, optional) -->
+      <MsiPackage Id="AIModels"
+                  DisplayName="AI-ARTWORKS Model Pack"
+                  SourceFile="$(var.ProjectDir)\AIModels.msi"
+                  Vital="no"
+                  Permanent="no"
+                  InstallCondition="1">
+        <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+        <MsiProperty Name="DOWNLOAD_MODELS" Value="1" />
+      </MsiPackage>
+    </Chain>
+  </Bundle>
+</Wix>
