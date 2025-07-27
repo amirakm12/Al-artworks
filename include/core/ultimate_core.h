@@ -86,4 +86,4 @@ void ultimate_system_recovery(void);
 }
 #endif
 
-#endif /* ULTIMATE_CORE_H */ 
+#endif /* ULTIMATE_CORE_H */

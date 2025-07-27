@@ -249,4 +249,4 @@ ultimate_error_t ultimate_system_get_info(ultimate_system_info_t* info);
 }
 #endif
 
-#endif /* ULTIMATE_SYSTEM_H */ 
+#endif /* ULTIMATE_SYSTEM_H */

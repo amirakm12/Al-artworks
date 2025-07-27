@@ -119,6 +119,14 @@ typedef int32_t ultimate_error_t;
 #define ULTIMATE_ERROR_FS_PATH_TOO_LONG     608
 #define ULTIMATE_ERROR_FS_ACCESS_DENIED     609
 
+/* Additional error codes */
+#define ULTIMATE_ERROR_SUCCESS              0
+#define ULTIMATE_ERROR_FILE_NOT_FOUND       602
+#define ULTIMATE_ERROR_INVALID_FORMAT       700
+#define ULTIMATE_ERROR_IO_ERROR             701
+#define ULTIMATE_ERROR_MEMORY_CORRUPTION    702
+#define ULTIMATE_ERROR_NOT_IMPLEMENTED      703
+
 /* Network error codes (700-799) */
 #define ULTIMATE_ERROR_NET_NOT_CONNECTED    700
 #define ULTIMATE_ERROR_NET_CONNECTION_FAILED 701
@@ -227,4 +235,4 @@ void ultimate_debug_printf(const char* format, ...);
 }
 #endif
 
-#endif /* ULTIMATE_ERRORS_H */ 
+#endif /* ULTIMATE_ERRORS_H */
