@@ -4,14 +4,6 @@
         "repository": "https://github.com/Microsoft/vcpkg",
         "baseline": "2024.07.12"
     },
-    "registries": [
-        {
-            "kind": "git",
-            "repository": "https://github.com/microsoft/vcpkg",
-            "baseline": "2024.07.12",
-            "packages": ["*"]
-        }
-    ],
     "dependencies": [
         {
             "name": "benchmark",
@@ -35,8 +27,7 @@
         },
         {
             "name": "openmp",
-            "version>=": "5.0.2",
-            "platform": "!osx"
+            "version>=": "5.0.2"
         },
         {
             "name": "tbb",
@@ -45,10 +36,6 @@
     ],
     "builtin-baseline": "2024.07.12",
     "vcpkg-configuration": {
-        "default-triplet": {
-            "x64-windows": "x64-windows",
-            "x64-linux": "x64-linux", 
-            "x64-osx": "x64-osx"
-        }
+        "default-triplet": "x64-windows"
     }
 }
