@@ -1,21 +1,54 @@
 {
+    "default-registry": {
+        "kind": "git",
+        "repository": "https://github.com/Microsoft/vcpkg",
+        "baseline": "2024.07.12"
+    },
     "registries": [
         {
-            "name": "arm",
-            "kind": "artifact",
-            "location": "https://artifacts.tools.arm.com/vcpkg-registry"
+            "kind": "git",
+            "repository": "https://github.com/microsoft/vcpkg",
+            "baseline": "2024.07.12",
+            "packages": ["*"]
         }
     ],
-    "requires": {
-        "arm:tools/open-cmsis-pack/cmsis-toolbox": "2.10.0",
-        "arm:compilers/arm/armclang": "6.24.0",
-        "arm:compilers/arm/armclang-fusa": "6.22.1",
-        "arm:debuggers/arm/armdbg": "6.6.0",
-        "arm:tools/arm/mdk-toolbox": "1.1.0",
-        "arm:models/arm/avh-fvp": "11.29.27",
-        "arm:compilers/iar/cxarm": "9.70.1",
-        "arm:tools/kitware/cmake": "3.31.5",
-        "arm:compilers/arm/llvm-embedded": "20.1.0",
-        "arm:tools/ninja-build/ninja": "1.12.1"
+    "dependencies": [
+        {
+            "name": "benchmark",
+            "version>=": "1.8.3"
+        },
+        {
+            "name": "gtest",
+            "version>=": "1.14.0"
+        },
+        {
+            "name": "fmt",
+            "version>=": "10.2.1"
+        },
+        {
+            "name": "spdlog",
+            "version>=": "1.12.0"
+        },
+        {
+            "name": "eigen3",
+            "version>=": "3.4.0"
+        },
+        {
+            "name": "openmp",
+            "version>=": "5.0.2",
+            "platform": "!osx"
+        },
+        {
+            "name": "tbb",
+            "version>=": "2021.10.0"
+        }
+    ],
+    "builtin-baseline": "2024.07.12",
+    "vcpkg-configuration": {
+        "default-triplet": {
+            "x64-windows": "x64-windows",
+            "x64-linux": "x64-linux", 
+            "x64-osx": "x64-osx"
+        }
     }
 }
