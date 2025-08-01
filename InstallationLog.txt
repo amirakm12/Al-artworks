@@ -1,0 +1,53 @@
+************************************* Invoked: Wed Jul 30 15:54:03 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe, --accept-messages, --accept-licenses, --root, C:\msys64
+[0] Warning: Found command line only option "accept-messages". This will not have any effect when running in graphical mode.
+[0] Warning: Found command line only option "accept-licenses". This will not have any effect when running in graphical mode.
+[0] Warning: Found command line only option "root". This will not have any effect when running in graphical mode.
+[5] Operations sanity check succeeded.
+[6] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[19] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:29:34 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe, --accept-messages, --accept-licenses
+[0] Warning: Found command line only option "accept-messages". This will not have any effect when running in graphical mode.
+[0] Warning: Found command line only option "accept-licenses". This will not have any effect when running in graphical mode.
+[4] Operations sanity check succeeded.
+[5] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[15] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:35:10 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe, /?
+[4] Operations sanity check succeeded.
+[4] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[14] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:30:10 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe
+[5] Operations sanity check succeeded.
+[5] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[14] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:35:12 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe
+[4] Operations sanity check succeeded.
+[4] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[14] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:36:28 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe
+[7] Operations sanity check succeeded.
+[8] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[20] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:36:40 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe
+[4] Operations sanity check succeeded.
+[4] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[15] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.
+************************************* Invoked: Thu Jul 31 03:37:32 2025
+[0] Arguments: C:\Users\ramin\MyProject\Al-artworks\msys2-installer.exe
+[5] Operations sanity check succeeded.
+[6] Warning: Cannot create lock file "C:\Users\ramin\AppData\Local\Temp\msys2-installer1234865.lock": The process cannot access the file because it is being used by another process.
+ (0x00000020)
+[16] UnableToStart : Unable to start installer : Another msys2-installer instance is already running. Wait until it finishes, close it, or restart your system.

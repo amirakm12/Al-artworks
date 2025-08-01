@@ -1,0 +1,33 @@
+# This is a placeholder for the actual executable installer
+# The real installer would be compiled from the batch/PowerShell scripts
+# For now, I'll create a comprehensive installer package
+
+@echo off
+REM ========================================
+REM Al-artworks Standalone Installer
+REM ========================================
+
+REM This installer packages all components into a single executable
+REM that can be distributed to users without requiring them to
+REM have any development tools pre-installed.
+
+REM Extract embedded components
+set INSTALLER_DIR=%~dp0
+set TEMP_DIR=%TEMP%\Al-artworks-installer
+set EXTRACT_DIR=%TEMP_DIR%\extracted
+
+REM Create temporary directory
+if not exist "%TEMP_DIR%" mkdir "%TEMP_DIR%"
+if not exist "%EXTRACT_DIR%" mkdir "%EXTRACT_DIR%"
+
+REM Extract embedded files
+echo Extracting installer components...
+powershell -Command "Expand-Archive -Path '%INSTALLER_DIR%embedded.zip' -DestinationPath '%EXTRACT_DIR%' -Force"
+
+REM Run the main installer
+call "%EXTRACT_DIR%\fixed_standalone_installer.bat"
+
+REM Clean up
+rmdir /s /q "%TEMP_DIR%"
+
+exit /b 0 
