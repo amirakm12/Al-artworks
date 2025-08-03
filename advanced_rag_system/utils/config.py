@@ -65,15 +65,6 @@ class RetrieverConfig(BaseModel):
     max_context_length: int = 4000
 
 
-class AgentConfig(BaseModel):
-    enable_query_agent: bool = True
-    enable_document_agent: bool = True
-    enable_orchestrator: bool = True
-    max_retries: int = 3
-    retry_delay: float = 1.0
-    timeout: int = 30
-
-
 class ProcessingConfig(BaseModel):
     chunk_size: int = 1000
     chunk_overlap: int = 200
@@ -104,7 +95,6 @@ class RAGConfig(BaseModel):
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)
     llm: LLMConfig = Field(default_factory=LLMConfig)
     retriever: RetrieverConfig = Field(default_factory=RetrieverConfig)
-    agent: AgentConfig = Field(default_factory=AgentConfig)
     processing: ProcessingConfig = Field(default_factory=ProcessingConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
     monitoring: MonitoringConfig = Field(default_factory=MonitoringConfig)
