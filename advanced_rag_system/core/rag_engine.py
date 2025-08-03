@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..utils.config import RAGConfig
-from ..agents.orchestrator_agent import OrchestratorAgent
 from ..vector_stores.vector_store_manager import VectorStoreManager
 from ..embeddings.embedding_manager import EmbeddingManager
 from ..retrievers.hybrid_retriever import HybridRetriever
@@ -39,7 +38,7 @@ class DocumentIngestionResult:
     error_message: Optional[str] = None
 
 
-class AdvancedRAGEngine:
+class RAGEngine:
     """
     Main RAG Engine that orchestrates all components
     """
@@ -49,7 +48,6 @@ class AdvancedRAGEngine:
         self.initialized = False
         
         # Core components
-        self.orchestrator_agent: Optional[OrchestratorAgent] = None
         self.vector_store_manager: Optional[VectorStoreManager] = None
         self.embedding_manager: Optional[EmbeddingManager] = None
         self.hybrid_retriever: Optional[HybridRetriever] = None
@@ -69,7 +67,6 @@ class AdvancedRAGEngine:
         await self._initialize_vector_store()
         await self._initialize_retriever()
         await self._initialize_processors()
-        await self._initialize_agents()
         await self._initialize_cache()
         await self._initialize_metrics()
         
@@ -100,15 +97,6 @@ class AdvancedRAGEngine:
     async def _initialize_processors(self) -> None:
         """Initialize document processor"""
         self.document_processor = DocumentProcessor(self.config.processing)
-    
-    async def _initialize_agents(self) -> None:
-        """Initialize AI agents"""
-        if self.config.agent.enable_orchestrator:
-            self.orchestrator_agent = OrchestratorAgent(
-                self.hybrid_retriever,
-                self.config
-            )
-            await self.orchestrator_agent.initialize()
     
     async def _initialize_cache(self) -> None:
         """Initialize cache manager"""
@@ -149,18 +137,14 @@ class AdvancedRAGEngine:
                 if cached_response:
                     return RAGResponse(**cached_response)
             
-            # Process query through orchestrator
-            if self.orchestrator_agent:
-                result = await self.orchestrator_agent.process_query(query, context)
-            else:
-                # Fallback to direct retrieval
-                retrieval_result = await self.hybrid_retriever.retrieve(query)
-                result = {
-                    "answer": "Generated answer based on retrieved documents",
-                    "sources": retrieval_result.documents,
-                    "confidence": 0.8,
-                    "metadata": {}
-                }
+            # Process query through retrieval
+            retrieval_result = await self.hybrid_retriever.retrieve(query)
+            result = {
+                "answer": "Generated answer based on retrieved documents",
+                "sources": retrieval_result.documents,
+                "confidence": 0.8,
+                "metadata": {}
+            }
             
             query_time = time.time() - start_time
             
@@ -371,9 +355,6 @@ class AdvancedRAGEngine:
         
         if self.cache_manager:
             await self.cache_manager.close()
-        
-        if self.orchestrator_agent:
-            await self.orchestrator_agent.shutdown()
         
         if self.hybrid_retriever:
             await self.hybrid_retriever.shutdown()
