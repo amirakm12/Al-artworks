@@ -207,13 +207,77 @@ class MainWindow(QMainWindow):
         self.chat_panel.undo_requested.connect(self._on_undo)
         self.chat_panel.branch_requested.connect(self._run_workflow)
         
+        # Athena's cosmic state
+        self.athena_personality = "cyber_sorceress"
+        self.user_name = "Creator"
+        
         self._setup_ui()
+        self._show_athena_intro()
         self._initialize_async()
     
         # Warn if running in CPU mode
         import torch
         if not torch.cuda.is_available():
             self.status_bar.showMessage("Warning: CUDA GPU not detected. Running in CPU mode.")
+    
+    def _show_athena_intro(self):
+        """Show Athena's epic introduction dialog"""
+        try:
+            from .athena_intro_dialog import AthenaIntroDialog
+            
+            # Create and show Athena's introduction
+            intro_dialog = AthenaIntroDialog(self.user_name, self)
+            intro_dialog.intro_complete.connect(self._on_athena_intro_complete)
+            intro_dialog.personality_selected.connect(self._on_athena_personality_selected)
+            
+            # Show dialog modally
+            intro_dialog.exec()
+            
+        except Exception as e:
+            logger.error(f"Failed to show Athena intro: {e}")
+            # Continue without intro if it fails
+    
+    def _on_athena_intro_complete(self):
+        """Handle Athena's introduction completion"""
+        logger.info("Athena's introduction complete - entering the cosmic realm")
+        
+        # Update window title with cosmic theme
+        self.setWindowTitle("AI-ARTWORK - The Birth of Celestial Art")
+        
+        # Initialize Athena core with selected personality
+        self._initialize_athena_core()
+    
+    def _on_athena_personality_selected(self, personality: str):
+        """Handle Athena personality selection"""
+        self.athena_personality = personality
+        logger.info(f"Athena's personality set to: {personality}")
+    
+    def _initialize_athena_core(self):
+        """Initialize Athena's cosmic core"""
+        try:
+            from ..agents.athena_core import AthenaCore, AthenaConfig, AthenaPersonality
+            
+            # Create Athena configuration
+            config = AthenaConfig(
+                personality=AthenaPersonality(self.athena_personality),
+                voice_tone="mystical_cinematic",
+                avatar_style="cyber_sorceress"
+            )
+            
+            # Initialize Athena core
+            self.athena_core = AthenaCore(config)
+            
+            # Add cosmic greeting to chat
+            self._append_chat(
+                f"✨ Welcome to AI-Artworks: The Birth of Celestial Art, {self.user_name}! "
+                "I am Athena, your post-human design genius, ready to orchestrate the cosmic creative revolution.",
+                user=False
+            )
+            
+            logger.info("Athena's cosmic core initialized")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Athena core: {e}")
     
     def _setup_ui(self):
         """Setup UI components"""
