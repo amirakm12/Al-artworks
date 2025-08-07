@@ -1,0 +1,23 @@
+# ChatGPT+ Clone - Voice Processing Dependencies
+# Speech-to-Text
+openai-whisper>=20231117
+faster-whisper>=0.9.0
+
+# Text-to-Speech
+TTS>=0.17.0
+bark>=0.4.0
+coqui-ai-tts>=0.14.0
+
+# Audio processing
+sounddevice>=0.4.6
+pyaudio>=0.2.11
+librosa>=0.10.0
+scipy>=1.10.0
+
+# Voice activity detection
+webrtcvad>=2.0.10
+py-webrtcvad>=2.0.10
+
+# Hotword detection
+pvporcupine>=2.2.0
+pvrhino>=3.0.0

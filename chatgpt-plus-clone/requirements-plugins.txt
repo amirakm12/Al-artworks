@@ -1,0 +1,20 @@
+# ChatGPT+ Clone - Plugin System & Sandbox Dependencies
+# Plugin discovery and management
+importlib_metadata>=6.6.0
+pluggy>=1.2.0
+
+# Sandbox and security
+restrictedpython>=6.1.0
+py-sandbox>=0.1.0
+
+# Dynamic code loading
+dill>=0.3.6
+cloudpickle>=2.2.0
+
+# Plugin configuration
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Plugin registry and discovery
+entrypoints>=0.4
+setuptools>=65.0.0

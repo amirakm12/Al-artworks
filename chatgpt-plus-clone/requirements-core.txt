@@ -1,0 +1,31 @@
+# ChatGPT+ Clone - Core Dependencies
+# Main application framework
+PyQt6>=6.4.0
+PyQt6-WebEngine>=6.4.0
+
+# LLM and AI core
+ollama>=0.1.0
+transformers>=4.30.0
+torch>=2.0.0
+torchaudio>=2.0.0
+accelerate>=0.20.0
+
+# Memory and vector storage
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# File handling and workspace
+aiofiles>=0.7.0
+watchdog>=3.0.0
+
+# Core utilities
+psutil>=5.8.0
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+rich>=13.0.0
+numpy>=1.21.0
+
+# Optional: GPU Acceleration (uncomment for CUDA support)
+# torch-cuda>=2.0.0
+# faiss-gpu>=1.7.4
