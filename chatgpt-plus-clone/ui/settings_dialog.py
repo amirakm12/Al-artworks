@@ -1,508 +1,545 @@
 """
-Settings Dialog - Application Configuration Interface
-Provides settings for voice, plugins, and application preferences
+Settings Dialog - Application Configuration Management
+Provides a comprehensive settings interface with live toggles and persistence
 """
 
+import logging
+from typing import Dict, Any, Optional
+
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTabWidget,
-                              QCheckBox, QPushButton, QLabel, QLineEdit, 
-                              QSpinBox, QComboBox, QGroupBox, QTextEdit,
-                              QSlider, QFormLayout, QScrollArea, QWidget)
+                              QCheckBox, QPushButton, QLabel, QSpinBox,
+                              QComboBox, QLineEdit, QGroupBox, QFormLayout,
+                              QSlider, QTextEdit, QMessageBox, QScrollArea)
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QFont
-from typing import Dict, Any
-import json
-from pathlib import Path
-from config_manager import ConfigManager, DEFAULT_APP_SETTINGS, DEFAULT_VOICE_SETTINGS, DEFAULT_UI_SETTINGS, DEFAULT_LLM_SETTINGS
+from PyQt6.QtGui import QFont, QIcon
+
+from config_manager import ConfigManager
 
 class SettingsDialog(QDialog):
-    """Main settings dialog for ChatGPT+ Clone"""
+    """Comprehensive settings dialog with live toggles"""
     
-    # Signals
+    # Signals for live updates
     settings_changed = pyqtSignal(dict)
-    voice_hotkey_toggled = pyqtSignal(bool)  # Signal for live voice hotkey toggle
-    toggle_changed = pyqtSignal(str, bool)  # Signal for any toggle change: (toggle_name, new_value)
+    voice_hotkey_toggled = pyqtSignal(bool)
+    toggle_changed = pyqtSignal(str, bool)
     
-    def __init__(self, current_settings: Dict[str, Any] = None, parent=None):
+    def __init__(self, main_app=None, parent=None):
         super().__init__(parent)
+        self.main_app = main_app
         self.config = ConfigManager()
-        self.current_settings = current_settings or self.load_default_settings()
+        self.logger = logging.getLogger(__name__)
+        
+        # Setup UI
         self.setup_ui()
         self.load_settings()
+        self.connect_signals()
+        
+        self.logger.info("Settings dialog initialized")
     
     def setup_ui(self):
-        """Setup the user interface"""
-        self.setWindowTitle("Settings - ChatGPT+ Clone")
-        self.setGeometry(200, 200, 600, 500)
+        """Setup the settings dialog UI"""
+        self.setWindowTitle("ChatGPT+ Clone Settings")
+        self.setGeometry(200, 200, 800, 600)
         
+        # Main layout
         layout = QVBoxLayout(self)
         
         # Create tab widget
         self.tab_widget = QTabWidget()
-        
-        # Voice settings tab
-        self.voice_tab = self.create_voice_tab()
-        self.tab_widget.addTab(self.voice_tab, "🎤 Voice")
-        
-        # Plugin settings tab
-        self.plugin_tab = self.create_plugin_tab()
-        self.tab_widget.addTab(self.plugin_tab, "🔌 Plugins")
-        
-        # Application settings tab
-        self.app_tab = self.create_app_tab()
-        self.tab_widget.addTab(self.app_tab, "⚙️ Application")
-        
-        # Advanced settings tab
-        self.advanced_tab = self.create_advanced_tab()
-        self.tab_widget.addTab(self.advanced_tab, "🔧 Advanced")
-        
         layout.addWidget(self.tab_widget)
+        
+        # Create tabs
+        self.create_general_tab()
+        self.create_voice_tab()
+        self.create_plugins_tab()
+        self.create_ar_overlay_tab()
+        self.create_advanced_tab()
         
         # Buttons
         button_layout = QHBoxLayout()
         
-        self.save_button = QPushButton("Save")
-        self.save_button.clicked.connect(self.save_settings)
-        self.save_button.setStyleSheet("""
+        self.save_btn = QPushButton("Save")
+        self.save_btn.clicked.connect(self.save_settings)
+        self.save_btn.setStyleSheet("""
             QPushButton {
-                background-color: #007AFF;
+                background-color: #007ACC;
                 color: white;
                 border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
+                padding: 10px 20px;
+                border-radius: 5px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #0056CC;
+                background-color: #005A9E;
             }
         """)
         
-        self.cancel_button = QPushButton("Cancel")
-        self.cancel_button.clicked.connect(self.reject)
-        self.cancel_button.setStyleSheet("""
+        self.cancel_btn = QPushButton("Cancel")
+        self.cancel_btn.clicked.connect(self.reject)
+        self.cancel_btn.setStyleSheet("""
             QPushButton {
                 background-color: #6C757D;
                 color: white;
                 border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #5A6268;
+                background-color: #545B62;
             }
         """)
         
-        self.reset_button = QPushButton("Reset to Defaults")
-        self.reset_button.clicked.connect(self.reset_settings)
-        self.reset_button.setStyleSheet("""
+        self.reset_btn = QPushButton("Reset to Defaults")
+        self.reset_btn.clicked.connect(self.reset_to_defaults)
+        self.reset_btn.setStyleSheet("""
             QPushButton {
                 background-color: #DC3545;
                 color: white;
                 border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-weight: bold;
             }
             QPushButton:hover {
                 background-color: #C82333;
             }
         """)
         
-        button_layout.addWidget(self.reset_button)
+        button_layout.addWidget(self.save_btn)
+        button_layout.addWidget(self.cancel_btn)
         button_layout.addStretch()
-        button_layout.addWidget(self.cancel_button)
-        button_layout.addWidget(self.save_button)
+        button_layout.addWidget(self.reset_btn)
         
         layout.addLayout(button_layout)
     
-    def create_voice_tab(self) -> QWidget:
+    def create_general_tab(self):
+        """Create general settings tab"""
+        general_widget = QWidget()
+        layout = QVBoxLayout(general_widget)
+        
+        # Application settings group
+        app_group = QGroupBox("Application Settings")
+        app_layout = QFormLayout(app_group)
+        
+        # General toggles
+        self.auto_save_chat = QCheckBox("Auto-save chat sessions")
+        app_layout.addRow("Chat Auto-save:", self.auto_save_chat)
+        
+        self.startup_minimize = QCheckBox("Start minimized")
+        app_layout.addRow("Startup Behavior:", self.startup_minimize)
+        
+        self.check_updates = QCheckBox("Check for updates")
+        app_layout.addRow("Updates:", self.check_updates)
+        
+        self.debug_mode = QCheckBox("Enable debug mode")
+        app_layout.addRow("Debug Mode:", self.debug_mode)
+        
+        self.show_technical_info = QCheckBox("Show technical information")
+        app_layout.addRow("Technical Info:", self.show_technical_info)
+        
+        layout.addWidget(app_group)
+        
+        # Memory settings group
+        memory_group = QGroupBox("Memory Settings")
+        memory_layout = QFormLayout(memory_group)
+        
+        self.enable_memory_system = QCheckBox("Enable memory system")
+        memory_layout.addRow("Memory System:", self.enable_memory_system)
+        
+        self.memory_limit = QSpinBox()
+        self.memory_limit.setRange(100, 10000)
+        self.memory_limit.setSuffix(" MB")
+        memory_layout.addRow("Memory Limit:", self.memory_limit)
+        
+        layout.addWidget(memory_group)
+        
+        # File settings group
+        file_group = QGroupBox("File Settings")
+        file_layout = QFormLayout(file_group)
+        
+        self.enable_file_upload = QCheckBox("Enable file upload")
+        file_layout.addRow("File Upload:", self.enable_file_upload)
+        
+        self.max_file_size = QSpinBox()
+        self.max_file_size.setRange(1, 1000)
+        self.max_file_size.setSuffix(" MB")
+        file_layout.addRow("Max File Size:", self.max_file_size)
+        
+        layout.addWidget(file_group)
+        
+        layout.addStretch()
+        self.tab_widget.addTab(general_widget, "General")
+    
+    def create_voice_tab(self):
         """Create voice settings tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+        voice_widget = QWidget()
+        layout = QVBoxLayout(voice_widget)
         
-        # Voice activation
-        voice_group = QGroupBox("Voice Activation")
-        voice_layout = QFormLayout(voice_group)
+        # Voice hotkey settings
+        hotkey_group = QGroupBox("Voice Hotkey Settings")
+        hotkey_layout = QFormLayout(hotkey_group)
         
-        self.voice_enabled = QCheckBox("Enable voice hotkey (Ctrl+Shift+V)")
-        self.voice_enabled.setChecked(True)
-        self.voice_enabled.stateChanged.connect(self.on_voice_hotkey_toggled)
-        voice_layout.addRow("Voice Hotkey:", self.voice_enabled)
+        self.voice_hotkey_enabled = QCheckBox("Enable voice hotkey")
+        hotkey_layout.addRow("Voice Hotkey:", self.voice_hotkey_enabled)
         
-        self.voice_hotkey = QLineEdit("ctrl+shift+v")
-        voice_layout.addRow("Hotkey:", self.voice_hotkey)
+        self.voice_hotkey_combo = QComboBox()
+        self.voice_hotkey_combo.addItems([
+            "Ctrl+Shift+V", "Ctrl+Alt+V", "F12", "Ctrl+Shift+Space"
+        ])
+        hotkey_layout.addRow("Hotkey:", self.voice_hotkey_combo)
         
-        # Recording settings
+        layout.addWidget(hotkey_group)
+        
+        # Voice recording settings
         recording_group = QGroupBox("Recording Settings")
         recording_layout = QFormLayout(recording_group)
         
         self.sample_rate = QComboBox()
         self.sample_rate.addItems(["8000", "16000", "22050", "44100"])
-        self.sample_rate.setCurrentText("16000")
         recording_layout.addRow("Sample Rate:", self.sample_rate)
         
         self.recording_duration = QSpinBox()
-        self.recording_duration.setRange(1, 60)
-        self.recording_duration.setValue(5)
-        recording_layout.addRow("Recording Duration (s):", self.recording_duration)
+        self.recording_duration.setRange(1, 30)
+        self.recording_duration.setSuffix(" seconds")
+        recording_layout.addRow("Recording Duration:", self.recording_duration)
         
-        self.silence_threshold = QSlider(Qt.Orientation.Horizontal)
-        self.silence_threshold.setRange(1, 100)
-        self.silence_threshold.setValue(10)
+        self.silence_threshold = QSpinBox()
+        self.silence_threshold.setRange(1, 50)
         recording_layout.addRow("Silence Threshold:", self.silence_threshold)
         
+        layout.addWidget(recording_group)
+        
         # TTS settings
-        tts_group = QGroupBox("Text-to-Speech")
+        tts_group = QGroupBox("Text-to-Speech Settings")
         tts_layout = QFormLayout(tts_group)
         
-        self.tts_enabled = QCheckBox("Enable TTS responses")
-        self.tts_enabled.setChecked(True)
+        self.tts_enabled = QCheckBox("Enable TTS")
         tts_layout.addRow("TTS Enabled:", self.tts_enabled)
         
-        self.tts_engine = QComboBox()
-        self.tts_engine.addItems(["TTS", "Bark", "Fallback"])
-        self.tts_engine.setCurrentText("TTS")
-        tts_layout.addRow("TTS Engine:", self.tts_engine)
-        
         self.tts_voice = QComboBox()
-        self.tts_voice.addItems(["Default", "Male", "Female", "Neutral"])
-        self.tts_voice.setCurrentText("Default")
-        tts_layout.addRow("Voice:", self.tts_voice)
+        self.tts_voice.addItems(["Default", "Male", "Female", "Robot"])
+        tts_layout.addRow("TTS Voice:", self.tts_voice)
         
-        # Add groups to layout
-        layout.addWidget(voice_group)
-        layout.addWidget(recording_group)
+        self.tts_speed = QSlider(Qt.Orientation.Horizontal)
+        self.tts_speed.setRange(50, 200)
+        self.tts_speed.setValue(100)
+        tts_layout.addRow("TTS Speed:", self.tts_speed)
+        
         layout.addWidget(tts_group)
+        
         layout.addStretch()
-        
-        return widget
+        self.tab_widget.addTab(voice_widget, "Voice")
     
-    def create_plugin_tab(self) -> QWidget:
-        """Create plugin settings tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+    def create_plugins_tab(self):
+        """Create plugins settings tab"""
+        plugins_widget = QWidget()
+        layout = QVBoxLayout(plugins_widget)
         
-        # Plugin management
-        plugin_group = QGroupBox("Plugin Management")
-        plugin_layout = QVBoxLayout(plugin_group)
+        # Plugin system settings
+        system_group = QGroupBox("Plugin System")
+        system_layout = QFormLayout(system_group)
         
-        self.plugin_hot_reload = QCheckBox("Enable hot-reload (auto-reload plugins on changes)")
-        self.plugin_hot_reload.setChecked(True)
-        plugin_layout.addWidget(self.plugin_hot_reload)
+        self.enable_plugins = QCheckBox("Enable plugin system")
+        system_layout.addRow("Plugin System:", self.enable_plugins)
         
-        self.plugin_debug = QCheckBox("Enable plugin debug logging")
-        self.plugin_debug.setChecked(False)
-        plugin_layout.addWidget(self.plugin_debug)
+        self.plugin_hot_reload = QCheckBox("Enable hot-reload")
+        system_layout.addRow("Hot Reload:", self.plugin_hot_reload)
         
-        self.plugin_sandbox = QCheckBox("Enable plugin sandboxing (security)")
-        self.plugin_sandbox.setChecked(True)
-        plugin_layout.addWidget(self.plugin_sandbox)
+        self.plugin_sandbox = QCheckBox("Enable sandboxing")
+        system_layout.addRow("Sandboxing:", self.plugin_sandbox)
         
-        # Plugin directory
-        dir_group = QGroupBox("Plugin Directory")
-        dir_layout = QFormLayout(dir_group)
+        layout.addWidget(system_group)
         
-        self.plugin_directory = QLineEdit("plugins")
-        dir_layout.addRow("Directory:", self.plugin_directory)
+        # Plugin debug settings
+        debug_group = QGroupBox("Plugin Debug")
+        debug_layout = QFormLayout(debug_group)
         
-        # Plugin status
-        status_group = QGroupBox("Plugin Status")
-        status_layout = QVBoxLayout(status_group)
+        self.plugin_debug_logging = QCheckBox("Enable debug logging")
+        debug_layout.addRow("Debug Logging:", self.plugin_debug_logging)
         
-        self.plugin_status = QTextEdit()
-        self.plugin_status.setMaximumHeight(100)
-        self.plugin_status.setReadOnly(True)
-        self.plugin_status.setPlaceholderText("Plugin status will appear here...")
-        status_layout.addWidget(self.plugin_status)
+        self.plugin_error_notifications = QCheckBox("Show error notifications")
+        debug_layout.addRow("Error Notifications:", self.plugin_error_notifications)
         
-        # Add groups to layout
-        layout.addWidget(plugin_group)
-        layout.addWidget(dir_group)
-        layout.addWidget(status_group)
+        layout.addWidget(debug_group)
+        
+        # Plugin configuration area
+        config_group = QGroupBox("Plugin Configuration")
+        config_layout = QVBoxLayout(config_group)
+        
+        self.plugin_config_text = QTextEdit()
+        self.plugin_config_text.setPlaceholderText("Plugin configuration will appear here...")
+        self.plugin_config_text.setMaximumHeight(200)
+        config_layout.addWidget(self.plugin_config_text)
+        
+        layout.addWidget(config_group)
+        
         layout.addStretch()
-        
-        return widget
+        self.tab_widget.addTab(plugins_widget, "Plugins")
     
-    def create_app_tab(self) -> QWidget:
-        """Create application settings tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+    def create_ar_overlay_tab(self):
+        """Create AR overlay settings tab"""
+        ar_widget = QWidget()
+        layout = QVBoxLayout(ar_widget)
         
-        # General settings
-        general_group = QGroupBox("General Settings")
-        general_layout = QFormLayout(general_group)
+        # AR overlay settings
+        ar_group = QGroupBox("AR Overlay Settings")
+        ar_layout = QFormLayout(ar_group)
         
-        self.auto_save = QCheckBox("Auto-save conversations")
-        self.auto_save.setChecked(True)
-        general_layout.addRow("Auto Save:", self.auto_save)
+        self.enable_ar_overlay = QCheckBox("Enable AR overlay")
+        ar_layout.addRow("AR Overlay:", self.enable_ar_overlay)
         
-        self.startup_minimize = QCheckBox("Start minimized to system tray")
-        self.startup_minimize.setChecked(False)
-        general_layout.addRow("Start Minimized:", self.startup_minimize)
+        self.ar_opacity = QSlider(Qt.Orientation.Horizontal)
+        self.ar_opacity.setRange(10, 100)
+        self.ar_opacity.setValue(80)
+        ar_layout.addRow("Opacity:", self.ar_opacity)
         
-        self.check_updates = QCheckBox("Check for updates on startup")
-        self.check_updates.setChecked(True)
-        general_layout.addRow("Check Updates:", self.check_updates)
+        self.ar_position = QComboBox()
+        self.ar_position.addItems(["Top-Right", "Top-Left", "Bottom-Right", "Bottom-Left", "Center"])
+        ar_layout.addRow("Position:", self.ar_position)
         
-        # UI settings
-        ui_group = QGroupBox("User Interface")
-        ui_layout = QFormLayout(ui_group)
+        layout.addWidget(ar_group)
         
-        self.theme = QComboBox()
-        self.theme.addItems(["Light", "Dark", "System"])
-        self.theme.setCurrentText("System")
-        ui_layout.addRow("Theme:", self.theme)
+        # Visual effects settings
+        effects_group = QGroupBox("Visual Effects")
+        effects_layout = QFormLayout(effects_group)
         
-        self.font_size = QSpinBox()
-        self.font_size.setRange(8, 24)
-        self.font_size.setValue(12)
-        ui_layout.addRow("Font Size:", self.font_size)
+        self.ar_particles = QCheckBox("Enable particle effects")
+        effects_layout.addRow("Particles:", self.ar_particles)
         
-        self.window_opacity = QSlider(Qt.Orientation.Horizontal)
-        self.window_opacity.setRange(50, 100)
-        self.window_opacity.setValue(100)
-        ui_layout.addRow("Window Opacity (%):", self.window_opacity)
+        self.ar_neural_network = QCheckBox("Show neural network")
+        effects_layout.addRow("Neural Network:", self.ar_neural_network)
         
-        # Memory settings
-        memory_group = QGroupBox("Memory & Storage")
-        memory_layout = QFormLayout(memory_group)
+        self.ar_data_flow = QCheckBox("Show data flow")
+        effects_layout.addRow("Data Flow:", self.ar_data_flow)
         
-        self.max_conversations = QSpinBox()
-        self.max_conversations.setRange(10, 1000)
-        self.max_conversations.setValue(100)
-        memory_layout.addRow("Max Conversations:", self.max_conversations)
+        self.ar_holographic_text = QCheckBox("Show holographic text")
+        effects_layout.addRow("Holographic Text:", self.ar_holographic_text)
         
-        self.max_memory_size = QComboBox()
-        self.max_memory_size.addItems(["256MB", "512MB", "1GB", "2GB", "4GB"])
-        self.max_memory_size.setCurrentText("1GB")
-        memory_layout.addRow("Max Memory:", self.max_memory_size)
+        layout.addWidget(effects_group)
         
-        # Add groups to layout
-        layout.addWidget(general_group)
-        layout.addWidget(ui_group)
-        layout.addWidget(memory_group)
+        # Performance settings
+        perf_group = QGroupBox("Performance")
+        perf_layout = QFormLayout(perf_group)
+        
+        self.ar_fps = QComboBox()
+        self.ar_fps.addItems(["30 FPS", "60 FPS", "120 FPS"])
+        perf_layout.addRow("Target FPS:", self.ar_fps)
+        
+        self.ar_quality = QComboBox()
+        self.ar_quality.addItems(["Low", "Medium", "High", "Ultra"])
+        perf_layout.addRow("Quality:", self.ar_quality)
+        
+        layout.addWidget(perf_group)
+        
         layout.addStretch()
-        
-        return widget
+        self.tab_widget.addTab(ar_widget, "AR Overlay")
     
-    def create_advanced_tab(self) -> QWidget:
+    def create_advanced_tab(self):
         """Create advanced settings tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
+        advanced_widget = QWidget()
+        layout = QVBoxLayout(advanced_widget)
         
-        # AI Model settings
-        model_group = QGroupBox("AI Model Settings")
-        model_layout = QFormLayout(model_group)
-        
-        self.default_model = QComboBox()
-        self.default_model.addItems([
-            "dolphin-mixtral:8x22b",
-            "llama2:13b", 
-            "mistral:7b",
-            "codellama:13b",
-            "neural-chat:7b"
-        ])
-        self.default_model.setCurrentText("dolphin-mixtral:8x22b")
-        model_layout.addRow("Default Model:", self.default_model)
-        
-        self.model_temperature = QSlider(Qt.Orientation.Horizontal)
-        self.model_temperature.setRange(0, 100)
-        self.model_temperature.setValue(70)
-        model_layout.addRow("Temperature:", self.model_temperature)
-        
-        self.max_tokens = QSpinBox()
-        self.max_tokens.setRange(100, 4000)
-        self.max_tokens.setValue(2048)
-        model_layout.addRow("Max Tokens:", self.max_tokens)
-        
-        # Network settings
-        network_group = QGroupBox("Network Settings")
-        network_layout = QFormLayout(network_group)
-        
-        self.ollama_url = QLineEdit("http://localhost:11434")
-        network_layout.addRow("Ollama URL:", self.ollama_url)
-        
-        self.timeout = QSpinBox()
-        self.timeout.setRange(5, 300)
-        self.timeout.setValue(30)
-        network_layout.addRow("Timeout (s):", self.timeout)
-        
-        self.retry_attempts = QSpinBox()
-        self.retry_attempts.setRange(1, 10)
-        self.retry_attempts.setValue(3)
-        network_layout.addRow("Retry Attempts:", self.retry_attempts)
-        
-        # Debug settings
-        debug_group = QGroupBox("Debug Settings")
-        debug_layout = QVBoxLayout(debug_group)
-        
-        self.debug_mode = QCheckBox("Enable debug mode")
-        debug_layout.addWidget(self.debug_mode)
+        # Logging settings
+        logging_group = QGroupBox("Logging Settings")
+        logging_layout = QFormLayout(logging_group)
         
         self.log_level = QComboBox()
-        self.log_level.addItems(["INFO", "DEBUG", "WARNING", "ERROR"])
-        self.log_level.setCurrentText("INFO")
-        debug_layout.addWidget(QLabel("Log Level:"))
-        debug_layout.addWidget(self.log_level)
+        self.log_level.addItems(["DEBUG", "INFO", "WARNING", "ERROR"])
+        logging_layout.addRow("Log Level:", self.log_level)
         
-        self.show_technical_info = QCheckBox("Show technical information in UI")
-        debug_layout.addWidget(self.show_technical_info)
+        self.log_to_file = QCheckBox("Log to file")
+        logging_layout.addRow("File Logging:", self.log_to_file)
         
-        # Add groups to layout
-        layout.addWidget(model_group)
-        layout.addWidget(network_group)
-        layout.addWidget(debug_group)
+        self.log_to_console = QCheckBox("Log to console")
+        logging_layout.addRow("Console Logging:", self.log_to_console)
+        
+        layout.addWidget(logging_group)
+        
+        # Error handling settings
+        error_group = QGroupBox("Error Handling")
+        error_layout = QFormLayout(error_group)
+        
+        self.show_error_dialogs = QCheckBox("Show error dialogs")
+        error_layout.addRow("Error Dialogs:", self.show_error_dialogs)
+        
+        self.auto_restart_on_crash = QCheckBox("Auto-restart on crash")
+        error_layout.addRow("Auto Restart:", self.auto_restart_on_crash)
+        
+        self.save_crash_reports = QCheckBox("Save crash reports")
+        error_layout.addRow("Crash Reports:", self.save_crash_reports)
+        
+        layout.addWidget(error_group)
+        
+        # Development settings
+        dev_group = QGroupBox("Development")
+        dev_layout = QFormLayout(dev_group)
+        
+        self.dev_mode = QCheckBox("Enable developer mode")
+        dev_layout.addRow("Developer Mode:", self.dev_mode)
+        
+        self.show_debug_info = QCheckBox("Show debug information")
+        dev_layout.addRow("Debug Info:", self.show_debug_info)
+        
+        layout.addWidget(dev_group)
+        
         layout.addStretch()
+        self.tab_widget.addTab(advanced_widget, "Advanced")
+    
+    def connect_signals(self):
+        """Connect all signal handlers"""
+        # Connect toggle signals
+        self.voice_hotkey_enabled.stateChanged.connect(self.on_voice_hotkey_toggled)
+        self.enable_plugins.stateChanged.connect(self.on_plugins_toggled)
+        self.enable_ar_overlay.stateChanged.connect(self.on_ar_overlay_toggled)
         
-        return widget
+        # Connect other settings changes
+        self.auto_save_chat.stateChanged.connect(self.on_setting_changed)
+        self.debug_mode.stateChanged.connect(self.on_setting_changed)
+        self.enable_memory_system.stateChanged.connect(self.on_setting_changed)
+        self.enable_file_upload.stateChanged.connect(self.on_setting_changed)
     
     def load_settings(self):
-        """Load current settings into UI"""
-        # Load from config manager
-        app_settings = self.config.get_app_settings()
-        voice_settings = self.config.get_voice_settings()
-        ui_settings = self.config.get_ui_settings()
-        llm_settings = self.config.get_llm_settings()
-        
-        # Voice settings
-        self.voice_enabled.setChecked(voice_settings.get('enabled', True))
-        self.voice_hotkey.setText(voice_settings.get('hotkey', 'ctrl+shift+v'))
-        self.sample_rate.setCurrentText(str(voice_settings.get('sample_rate', 16000)))
-        self.recording_duration.setValue(voice_settings.get('recording_duration', 5))
-        self.silence_threshold.setValue(voice_settings.get('silence_threshold', 10))
-        self.tts_enabled.setChecked(voice_settings.get('tts_enabled', True))
-        self.tts_engine.setCurrentText(voice_settings.get('tts_engine', 'TTS'))
-        self.tts_voice.setCurrentText(voice_settings.get('tts_voice', 'Default'))
-        
-        # Plugin settings
-        self.plugin_hot_reload.setChecked(app_settings.get('plugin_hot_reload', True))
-        self.plugin_debug.setChecked(app_settings.get('plugin_debug', False))
-        self.plugin_sandbox.setChecked(app_settings.get('plugin_sandbox', True))
-        self.plugin_directory.setText(app_settings.get('plugin_directory', 'plugins'))
-        
-        # App settings
-        self.auto_save.setChecked(app_settings.get('auto_save', True))
-        self.startup_minimize.setChecked(app_settings.get('startup_minimize', False))
-        self.check_updates.setChecked(app_settings.get('check_updates', True))
-        self.theme.setCurrentText(ui_settings.get('theme', 'System'))
-        self.font_size.setValue(ui_settings.get('font_size', 12))
-        self.window_opacity.setValue(ui_settings.get('window_opacity', 100))
-        self.max_conversations.setValue(app_settings.get('max_conversations', 100))
-        self.max_memory_size.setCurrentText(app_settings.get('max_memory_size', '1GB'))
-        
-        # Advanced settings
-        self.default_model.setCurrentText(llm_settings.get('default_model', 'dolphin-mixtral:8x22b'))
-        self.model_temperature.setValue(llm_settings.get('temperature', 70))
-        self.max_tokens.setValue(llm_settings.get('max_tokens', 2048))
-        self.ollama_url.setText(llm_settings.get('ollama_url', 'http://localhost:11434'))
-        self.timeout.setValue(llm_settings.get('timeout', 30))
-        self.retry_attempts.setValue(llm_settings.get('retry_attempts', 3))
-        self.debug_mode.setChecked(app_settings.get('debug_mode', False))
-        self.log_level.setCurrentText(app_settings.get('log_level', 'INFO'))
-        self.show_technical_info.setChecked(ui_settings.get('show_technical_info', False))
+        """Load current settings from config"""
+        try:
+            # Load app settings
+            app_settings = self.config.get_app_settings()
+            self.auto_save_chat.setChecked(app_settings.get("auto_save_chat", True))
+            self.startup_minimize.setChecked(app_settings.get("startup_minimize", False))
+            self.check_updates.setChecked(app_settings.get("check_updates", True))
+            self.debug_mode.setChecked(app_settings.get("debug_mode", False))
+            self.show_technical_info.setChecked(app_settings.get("show_technical_info", False))
+            self.enable_memory_system.setChecked(app_settings.get("enable_memory_system", True))
+            self.enable_file_upload.setChecked(app_settings.get("enable_file_upload", True))
+            
+            # Load voice settings
+            voice_settings = self.config.get_voice_settings()
+            self.voice_hotkey_enabled.setChecked(voice_settings.get("enabled", True))
+            self.sample_rate.setCurrentText(str(voice_settings.get("sample_rate", 16000)))
+            self.recording_duration.setValue(voice_settings.get("recording_duration", 5))
+            self.silence_threshold.setValue(voice_settings.get("silence_threshold", 10))
+            self.tts_enabled.setChecked(voice_settings.get("tts_enabled", True))
+            
+            # Load UI settings
+            ui_settings = self.config.get_ui_settings()
+            self.enable_ar_overlay.setChecked(ui_settings.get("enable_ar_overlay", False))
+            self.ar_opacity.setValue(int(ui_settings.get("ar_opacity", 80)))
+            self.ar_position.setCurrentText(ui_settings.get("ar_position", "Top-Right"))
+            
+            # Load plugin settings
+            self.enable_plugins.setChecked(app_settings.get("enable_plugins", True))
+            self.plugin_hot_reload.setChecked(app_settings.get("plugin_hot_reload", True))
+            self.plugin_sandbox.setChecked(app_settings.get("plugin_sandbox", True))
+            self.plugin_debug_logging.setChecked(app_settings.get("plugin_debug_logging", False))
+            
+            self.logger.info("Settings loaded successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Error loading settings: {e}")
+            QMessageBox.warning(self, "Error", f"Failed to load settings: {e}")
     
     def save_settings(self):
-        """Save current UI settings"""
-        settings = {
-            # Voice settings
-            'voice_enabled': self.voice_enabled.isChecked(),
-            'voice_hotkey': self.voice_hotkey.text(),
-            'sample_rate': int(self.sample_rate.currentText()),
-            'recording_duration': self.recording_duration.value(),
-            'silence_threshold': self.silence_threshold.value(),
-            'tts_enabled': self.tts_enabled.isChecked(),
-            'tts_engine': self.tts_engine.currentText(),
-            'tts_voice': self.tts_voice.currentText(),
-            
-            # Plugin settings
-            'plugin_hot_reload': self.plugin_hot_reload.isChecked(),
-            'plugin_debug': self.plugin_debug.isChecked(),
-            'plugin_sandbox': self.plugin_sandbox.isChecked(),
-            'plugin_directory': self.plugin_directory.text(),
-            
-            # App settings
-            'auto_save': self.auto_save.isChecked(),
-            'startup_minimize': self.startup_minimize.isChecked(),
-            'check_updates': self.check_updates.isChecked(),
-            'theme': self.theme.currentText(),
-            'font_size': self.font_size.value(),
-            'window_opacity': self.window_opacity.value(),
-            'max_conversations': self.max_conversations.value(),
-            'max_memory_size': self.max_memory_size.currentText(),
-            
-            # Advanced settings
-            'default_model': self.default_model.currentText(),
-            'model_temperature': self.model_temperature.value(),
-            'max_tokens': self.max_tokens.value(),
-            'ollama_url': self.ollama_url.text(),
-            'timeout': self.timeout.value(),
-            'retry_attempts': self.retry_attempts.value(),
-            'debug_mode': self.debug_mode.isChecked(),
-            'log_level': self.log_level.currentText(),
-            'show_technical_info': self.show_technical_info.isChecked(),
-        }
-        
-        # Save to file
-        self.save_settings_to_file(settings)
-        
-        # Emit signal
-        self.settings_changed.emit(settings)
-        
-        # Close dialog
-        self.accept()
-    
-    def reset_settings(self):
-        """Reset settings to defaults"""
-        self.current_settings = self.load_default_settings()
-        self.load_settings()
-    
-    def load_default_settings(self) -> Dict[str, Any]:
-        """Load default settings"""
-        return {
-            'voice_enabled': True,
-            'voice_hotkey': 'ctrl+shift+v',
-            'sample_rate': 16000,
-            'recording_duration': 5,
-            'silence_threshold': 10,
-            'tts_enabled': True,
-            'tts_engine': 'TTS',
-            'tts_voice': 'Default',
-            'plugin_hot_reload': True,
-            'plugin_debug': False,
-            'plugin_sandbox': True,
-            'plugin_directory': 'plugins',
-            'auto_save': True,
-            'startup_minimize': False,
-            'check_updates': True,
-            'theme': 'System',
-            'font_size': 12,
-            'window_opacity': 100,
-            'max_conversations': 100,
-            'max_memory_size': '1GB',
-            'default_model': 'dolphin-mixtral:8x22b',
-            'model_temperature': 70,
-            'max_tokens': 2048,
-            'ollama_url': 'http://localhost:11434',
-            'timeout': 30,
-            'retry_attempts': 3,
-            'debug_mode': False,
-            'log_level': 'INFO',
-            'show_technical_info': False,
-        }
-    
-    def save_settings_to_file(self, settings: Dict[str, Any]):
-        """Save settings to JSON file"""
+        """Save current settings to config"""
         try:
-            config_path = Path("config.json")
-            with open(config_path, 'w') as f:
-                json.dump(settings, f, indent=2)
+            # Collect app settings
+            app_settings = {
+                "auto_save_chat": self.auto_save_chat.isChecked(),
+                "startup_minimize": self.startup_minimize.isChecked(),
+                "check_updates": self.check_updates.isChecked(),
+                "debug_mode": self.debug_mode.isChecked(),
+                "show_technical_info": self.show_technical_info.isChecked(),
+                "enable_memory_system": self.enable_memory_system.isChecked(),
+                "enable_file_upload": self.enable_file_upload.isChecked(),
+                "enable_plugins": self.enable_plugins.isChecked(),
+                "plugin_hot_reload": self.plugin_hot_reload.isChecked(),
+                "plugin_sandbox": self.plugin_sandbox.isChecked(),
+                "plugin_debug_logging": self.plugin_debug_logging.isChecked(),
+            }
+            
+            # Collect voice settings
+            voice_settings = {
+                "enabled": self.voice_hotkey_enabled.isChecked(),
+                "hotkey": self.voice_hotkey_combo.currentText(),
+                "sample_rate": int(self.sample_rate.currentText()),
+                "recording_duration": self.recording_duration.value(),
+                "silence_threshold": self.silence_threshold.value(),
+                "tts_enabled": self.tts_enabled.isChecked(),
+                "tts_voice": self.tts_voice.currentText(),
+                "tts_speed": self.tts_speed.value(),
+            }
+            
+            # Collect UI settings
+            ui_settings = {
+                "enable_ar_overlay": self.enable_ar_overlay.isChecked(),
+                "ar_opacity": self.ar_opacity.value(),
+                "ar_position": self.ar_position.currentText(),
+                "ar_particles": self.ar_particles.isChecked(),
+                "ar_neural_network": self.ar_neural_network.isChecked(),
+                "ar_data_flow": self.ar_data_flow.isChecked(),
+                "ar_holographic_text": self.ar_holographic_text.isChecked(),
+            }
+            
+            # Save to config
+            self.config.set_app_settings(app_settings)
+            self.config.set_voice_settings(voice_settings)
+            self.config.set_ui_settings(ui_settings)
+            
+            # Emit settings changed signal
+            all_settings = {**app_settings, **voice_settings, **ui_settings}
+            self.settings_changed.emit(all_settings)
+            
+            self.logger.info("Settings saved successfully")
+            QMessageBox.information(self, "Success", "Settings saved successfully!")
+            
+            self.accept()
+            
         except Exception as e:
-            print(f"Error saving settings: {e}")
+            self.logger.error(f"Error saving settings: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to save settings: {e}")
+    
+    def reset_to_defaults(self):
+        """Reset all settings to defaults"""
+        try:
+            reply = QMessageBox.question(
+                self, "Reset Settings",
+                "Are you sure you want to reset all settings to defaults?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            
+            if reply == QMessageBox.StandardButton.Yes:
+                # Reset config to defaults
+                self.config.reset_to_defaults()
+                
+                # Reload settings
+                self.load_settings()
+                
+                self.logger.info("Settings reset to defaults")
+                QMessageBox.information(self, "Success", "Settings reset to defaults!")
+                
+        except Exception as e:
+            self.logger.error(f"Error resetting settings: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to reset settings: {e}")
     
     def on_voice_hotkey_toggled(self, state):
-        """Handle voice hotkey toggle and emit signal"""
+        """Handle voice hotkey toggle"""
         enabled = state == Qt.CheckState.Checked
         self.voice_hotkey_toggled.emit(enabled)
-        print(f"[Settings] Voice hotkey toggled: {enabled}")
+        self.toggle_changed.emit("voice_hotkey_enabled", enabled)
+        self.logger.info(f"Voice hotkey toggled: {enabled}")
     
-    def update_plugin_status(self, status_text: str):
-        """Update plugin status display"""
-        self.plugin_status.setText(status_text)
+    def on_plugins_toggled(self, state):
+        """Handle plugins toggle"""
+        enabled = state == Qt.CheckState.Checked
+        self.toggle_changed.emit("enable_plugins", enabled)
+        self.logger.info(f"Plugins toggled: {enabled}")
+    
+    def on_ar_overlay_toggled(self, state):
+        """Handle AR overlay toggle"""
+        enabled = state == Qt.CheckState.Checked
+        self.toggle_changed.emit("enable_ar_overlay", enabled)
+        self.logger.info(f"AR overlay toggled: {enabled}")
+    
+    def on_setting_changed(self):
+        """Handle any setting change"""
+        self.logger.debug("Setting changed")
+        # This could trigger auto-save or other actions

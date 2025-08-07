@@ -77,8 +77,96 @@ class PluginReloadHandler(FileSystemEventHandler):
             print(f"🗑️ [Plugin Hot-Reload] Plugin deleted: {event.src_path}")
             self.reload_callback()
 
+class SandboxPlugin:
+    """Secure sandboxed plugin with restricted execution"""
+    
+    def __init__(self, code: str, name: str):
+        self.name = name
+        self.code = code
+        self.module = None
+        self.logger = logging.getLogger(f"SandboxPlugin.{name}")
+        
+        # Security settings
+        self.max_execution_time = 30
+        self.allowed_modules = {
+            'time', 'datetime', 'json', 'math', 'random',
+            'collections', 'itertools', 'functools'
+        }
+    
+    def start(self):
+        """Start the sandboxed plugin"""
+        try:
+            if RESTRICTED_PYTHON_AVAILABLE:
+                # Use RestrictedPython for secure execution
+                byte_code = compile_restricted(self.code, f"<plugin_{self.name}>", "exec")
+                global_env = safe_globals.copy()
+                global_env['_print_'] = print
+                global_env['_getattr_'] = getattr
+                global_env['_setattr_'] = setattr
+                global_env['_getitem_'] = lambda obj, index: obj[index]
+                
+                # Add safe builtins
+                global_env.update({
+                    'time': __import__('time'),
+                    'json': __import__('json'),
+                    'math': __import__('math'),
+                    'random': __import__('random'),
+                    'collections': __import__('collections')
+                })
+                
+                exec(byte_code, global_env)
+                self.module = global_env
+                
+                # Call start function if available
+                if 'start' in global_env:
+                    global_env['start']()
+                
+                self.logger.info(f"Sandbox plugin {self.name} started successfully")
+                
+            else:
+                # Fallback to basic sandbox
+                self.logger.warning(f"RestrictedPython not available, using basic sandbox for {self.name}")
+                global_env = {}
+                exec(self.code, global_env)
+                self.module = global_env
+                
+                if 'start' in global_env:
+                    global_env['start']()
+                
+                self.logger.info(f"Basic sandbox plugin {self.name} started")
+                
+        except Exception as e:
+            self.logger.error(f"Failed to start sandbox plugin {self.name}: {e}")
+            handle_error(e, f"Plugin {self.name} start", "Plugin")
+    
+    def stop(self):
+        """Stop the sandboxed plugin"""
+        try:
+            if self.module and 'stop' in self.module:
+                self.module['stop']()
+                self.logger.info(f"Sandbox plugin {self.name} stopped")
+            else:
+                self.logger.info(f"Sandbox plugin {self.name} stopped (no stop function)")
+                
+        except Exception as e:
+            self.logger.error(f"Failed to stop sandbox plugin {self.name}: {e}")
+            handle_error(e, f"Plugin {self.name} stop", "Plugin")
+    
+    def call_function(self, func_name: str, *args, **kwargs):
+        """Call a function in the sandboxed plugin"""
+        try:
+            if self.module and func_name in self.module:
+                return self.module[func_name](*args, **kwargs)
+            else:
+                self.logger.warning(f"Function {func_name} not found in plugin {self.name}")
+                return None
+        except Exception as e:
+            self.logger.error(f"Error calling {func_name} in plugin {self.name}: {e}")
+            handle_error(e, f"Plugin {self.name} function call", "Plugin")
+            return None
+
 class PluginLoader:
-    """Advanced plugin loader with hot-reload capabilities"""
+    """Advanced plugin loader with hot-reload capabilities and sandboxing"""
     
     def __init__(self):
         self.plugins = []

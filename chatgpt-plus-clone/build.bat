@@ -1,29 +1,43 @@
 @echo off
-echo 🚀 ChatGPT+ Clone - Build Script
-echo =================================
+echo ========================================
+echo ChatGPT+ Clone - Build Script
+echo ========================================
+echo.
 
-REM Check if virtual environment exists
-if not exist ".venv" (
-    echo ❌ Virtual environment not found. Please run install.ps1 first.
+REM Check if Python is available
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: Python is not installed or not in PATH
+    echo Please install Python 3.10+ and try again
     pause
     exit /b 1
 )
 
-REM Activate virtual environment
-call .venv\Scripts\activate.bat
-
-REM Check if PyInstaller is installed
-python -c "import PyInstaller" 2>nul
+REM Check if PyInstaller is available
+python -c "import PyInstaller" >nul 2>&1
 if errorlevel 1 (
-    echo 📦 Installing PyInstaller...
+    echo Installing PyInstaller...
     pip install pyinstaller
+    if errorlevel 1 (
+        echo ERROR: Failed to install PyInstaller
+        pause
+        exit /b 1
+    )
 )
 
-REM Create build directory
+echo Creating build directory...
 if not exist "build" mkdir build
 if not exist "dist" mkdir dist
 
-echo 🔧 Building executable...
+echo Cleaning previous builds...
+rmdir /s /q build 2>nul
+rmdir /s /q dist 2>nul
+
+echo.
+echo ========================================
+echo Building ChatGPT+ Clone Executable
+echo ========================================
+echo.
 
 REM Create PyInstaller spec file
 echo Creating PyInstaller specification...
@@ -38,57 +52,39 @@ echo     pathex=[],
 echo     binaries=[],
 echo     datas=[
 echo         ('config.json', '.'),
-echo         ('requirements*.txt', '.'),
-echo         ('plugins', 'plugins'),
-echo         ('workspace', 'workspace'),
-echo         ('memory', 'memory'),
-echo         ('ui', 'ui'),
-echo         ('llm', 'llm'),
-echo         ('tools', 'tools'),
-echo         ('vs_code_link', 'vs_code_link'),
+echo         ('plugins/*.py', 'plugins'),
+echo         ('ui/*.py', 'ui'),
+echo         ('*.py', '.'),
 echo     ],
 echo     hiddenimports=[
 echo         'PyQt6',
 echo         'PyQt6.QtCore',
-echo         'PyQt6.QtGui',
 echo         'PyQt6.QtWidgets',
-echo         'PyQt6.QtWebEngine',
+echo         'PyQt6.QtGui',
+echo         'PyQt6.QtWebEngineWidgets',
 echo         'PyQt6.QtOpenGLWidgets',
-echo         'ollama',
-echo         'transformers',
-echo         'torch',
-echo         'torchaudio',
-echo         'whisper',
-echo         'sounddevice',
-echo         'numpy',
-echo         'diffusers',
-echo         'opencv-python',
-echo         'Pillow',
-echo         'requests',
-echo         'beautifulsoup4',
-echo         'playwright',
-echo         'selenium',
-echo         'chromadb',
-echo         'sentence_transformers',
-echo         'faiss',
-echo         'aiofiles',
-echo         'watchdog',
 echo         'keyboard',
-echo         'psutil',
-echo         'python-dotenv',
-echo         'tqdm',
-echo         'rich',
-echo         'jupyter',
-echo         'ipykernel',
-echo         'virtualenv',
-echo         'importlib_metadata',
-echo         'pluggy',
-echo         'restrictedpython',
-echo         'dill',
-echo         'cloudpickle',
-echo         'pydantic',
-echo         'entrypoints',
-echo         'setuptools',
+echo         'watchdog',
+echo         'restricted_python',
+echo         'config_manager',
+echo         'plugin_loader',
+echo         'voice_hotkey',
+echo         'overlay_ar',
+echo         'error_handler',
+echo         'ui.settings_dialog',
+echo         'ui.plugin_test_dialog',
+echo         'ui.chat_interface',
+echo         'ui.tools_panel',
+echo         'ui.file_browser',
+echo         'ui.voice_panel',
+echo         'ui.monaco_editor',
+echo         'llm.agent_orchestrator',
+echo         'memory.memory_manager',
+echo         'tools.code_executor',
+echo         'tools.web_browser',
+echo         'tools.image_editor',
+echo         'tools.voice_agent',
+echo         'vs_code_link.vs_code_integration',
 echo     ],
 echo     hookspath=[],
 echo     hooksconfig={},
@@ -98,32 +94,28 @@ echo     win_no_prefer_redirects=False,
 echo     win_private_assemblies=False,
 echo     cipher=block_cipher,
 echo     noarchive=False,
-echo ^)
+echo )
 echo.
-echo pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher^)
+echo pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 echo.
 echo exe = EXE(
 echo     pyz,
 echo     a.scripts,
-echo     a.binaries,
-echo     a.zipfiles,
-echo     a.datas,
 echo     [],
+echo     exclude_binaries=True,
 echo     name='ChatGPTPlusClone',
 echo     debug=False,
 echo     bootloader_ignore_signals=False,
 echo     strip=False,
 echo     upx=True,
-echo     upx_exclude=[],
-echo     runtime_tmpdir=None,
 echo     console=False,
 echo     disable_windowed_traceback=False,
 echo     argv_emulation=False,
 echo     target_arch=None,
 echo     codesign_identity=None,
 echo     entitlements_file=None,
-echo     icon='icon.ico',
-echo ^)
+echo     icon='app_icon.ico' if os.path.exists('app_icon.ico') else None,
+echo )
 echo.
 echo coll = COLLECT(
 echo     exe,
@@ -134,152 +126,88 @@ echo     strip=False,
 echo     upx=True,
 echo     upx_exclude=[],
 echo     name='ChatGPTPlusClone',
-echo ^)
+echo )
 ) > ChatGPTPlusClone.spec
 
-REM Build the executable
-echo Building with PyInstaller...
+echo Building executable with PyInstaller...
 pyinstaller --clean ChatGPTPlusClone.spec
 
 if errorlevel 1 (
-    echo ❌ Build failed!
+    echo.
+    echo ERROR: Build failed!
+    echo Check the error messages above for details.
     pause
     exit /b 1
 )
 
-REM Create distribution package
-echo 📦 Creating distribution package...
+echo.
+echo ========================================
+echo Build Completed Successfully!
+echo ========================================
+echo.
+echo Executable location: dist\ChatGPTPlusClone\ChatGPTPlusClone.exe
+echo.
+echo Creating installation package...
 
-REM Create dist directory structure
-if not exist "dist\ChatGPTPlusClone" mkdir dist\ChatGPTPlusClone
+REM Create installation directory
+if not exist "installer" mkdir installer
 
-REM Copy additional files
-echo Copying additional files...
-copy "config.json" "dist\ChatGPTPlusClone\" 2>nul
-copy "requirements*.txt" "dist\ChatGPTPlusClone\" 2>nul
-copy "README.md" "dist\ChatGPTPlusClone\" 2>nul
-copy "LICENSE" "dist\ChatGPTPlusClone\" 2>nul
+REM Copy executable and dependencies
+xcopy /E /I /Y "dist\ChatGPTPlusClone" "installer\ChatGPTPlusClone"
 
-REM Create startup script for the executable
-echo Creating startup script...
-(
-echo @echo off
-echo echo 🚀 Starting ChatGPT+ Clone...
-echo echo.
-echo cd /d "%%~dp0"
-echo ChatGPTPlusClone.exe
-echo pause
-) > "dist\ChatGPTPlusClone\start.bat"
+REM Create startup script
+echo @echo off > installer\start.bat
+echo echo Starting ChatGPT+ Clone... >> installer\start.bat
+echo cd /d "%%~dp0" >> installer\start.bat
+echo ChatGPTPlusClone.exe >> installer\start.bat
+echo pause >> installer\start.bat
 
-REM Create installer script
-echo Creating installer script...
-(
-echo @echo off
-echo echo 🚀 ChatGPT+ Clone - Installer
-echo echo ================================
-echo echo.
-echo echo Installing ChatGPT+ Clone...
-echo echo.
-echo.
-echo REM Create desktop shortcut
-echo set SCRIPT="%%TEMP%%\%random%.vbs"
-echo echo Set oWS = WScript.CreateObject^("WScript.Shell"^) ^> %%SCRIPT%%
-echo echo sLinkFile = "%%USERPROFILE%%\Desktop\ChatGPT+ Clone.lnk" ^>^> %%SCRIPT%%
-echo echo Set oLink = oWS.CreateShortcut^(sLinkFile^) ^>^> %%SCRIPT%%
-echo echo oLink.TargetPath = "%%~dp0ChatGPTPlusClone.exe" ^>^> %%SCRIPT%%
-echo echo oLink.WorkingDirectory = "%%~dp0" ^>^> %%SCRIPT%%
-echo echo oLink.Description = "ChatGPT+ Clone - AI Assistant" ^>^> %%SCRIPT%%
-echo echo oLink.IconLocation = "%%~dp0ChatGPTPlusClone.exe,0" ^>^> %%SCRIPT%%
-echo echo oLink.Save ^>^> %%SCRIPT%%
-echo echo cscript //nologo %%SCRIPT%% ^>nul
-echo echo del %%SCRIPT%%
-echo.
-echo REM Create start menu shortcut
-echo set SCRIPT="%%TEMP%%\%random%.vbs"
-echo echo Set oWS = WScript.CreateObject^("WScript.Shell"^) ^> %%SCRIPT%%
-echo echo sLinkFile = "%%APPDATA%%\Microsoft\Windows\Start Menu\Programs\ChatGPT+ Clone.lnk" ^>^> %%SCRIPT%%
-echo echo Set oLink = oWS.CreateShortcut^(sLinkFile^) ^>^> %%SCRIPT%%
-echo echo oLink.TargetPath = "%%~dp0ChatGPTPlusClone.exe" ^>^> %%SCRIPT%%
-echo echo oLink.WorkingDirectory = "%%~dp0" ^>^> %%SCRIPT%%
-echo echo oLink.Description = "ChatGPT+ Clone - AI Assistant" ^>^> %%SCRIPT%%
-echo echo oLink.IconLocation = "%%~dp0ChatGPTPlusClone.exe,0" ^>^> %%SCRIPT%%
-echo echo oLink.Save ^>^> %%SCRIPT%%
-echo echo cscript //nologo %%SCRIPT%% ^>nul
-echo echo del %%SCRIPT%%
-echo.
-echo echo ✅ Installation completed!
-echo echo.
-echo echo 🎉 ChatGPT+ Clone has been installed successfully!
-echo echo.
-echo echo 📋 Next steps:
-echo echo 1. Double-click "ChatGPT+ Clone.exe" to start the application
-echo echo 2. Press Ctrl+Shift+V to activate voice input
-echo echo 3. Use the tools panel to access different AI capabilities
-echo echo.
-echo echo 📚 For more information, check the README.md file
-echo echo.
-echo pause
-) > "dist\ChatGPTPlusClone\install.bat"
-
-REM Create README for distribution
-echo Creating distribution README...
-(
-echo # ChatGPT+ Clone - Standalone Application
-echo.
-echo ## Quick Start
-echo.
-echo 1. **Install**: Run `install.bat` to install the application
-echo 2. **Launch**: Double-click `ChatGPTPlusClone.exe` or use the desktop shortcut
-echo 3. **Voice**: Press `Ctrl+Shift+V` to activate voice input
-echo 4. **Tools**: Use the tools panel for different AI capabilities
-echo.
-echo ## Features
-echo.
-echo - 🤖 **AI Chat**: Advanced language model conversations
-echo - 🎤 **Voice Input**: Speech-to-text with Whisper
-echo - 💻 **Code Interpreter**: Python code execution
-echo - 🌐 **Web Search**: Real-time web browsing
-echo - 🎨 **Image Generation**: DALL-E style image creation
-echo - 📁 **File Handling**: Upload and process files
-echo - 🔌 **Plugin System**: Extensible with custom plugins
-echo - 🧠 **Memory System**: Persistent conversation history
-echo.
-echo ## System Requirements
-echo.
-echo - Windows 10/11 (64-bit)
-echo - 8GB RAM minimum (16GB recommended)
-echo - 10GB free disk space
-echo - Internet connection for web features
-echo.
-echo ## Troubleshooting
-echo.
-echo - **Voice not working**: Check microphone permissions
-echo - **Slow performance**: Close other applications
-echo - **Model errors**: Ensure Ollama is running
-echo.
-echo ## Support
-echo.
-echo For issues and updates, visit the project repository.
-echo.
-echo ---
-echo Built with ❤️ using PyQt6 and Ollama
-) > "dist\ChatGPTPlusClone\README.txt"
+REM Create README for installer
+echo ChatGPT+ Clone - AI Assistant > installer\README.txt
+echo. >> installer\README.txt
+echo Installation Instructions: >> installer\README.txt
+echo 1. Extract all files to a directory >> installer\README.txt
+echo 2. Run start.bat to launch the application >> installer\README.txt
+echo 3. Or double-click ChatGPTPlusClone.exe >> installer\README.txt
+echo. >> installer\README.txt
+echo System Requirements: >> installer\README.txt
+echo - Windows 10 or later >> installer\README.txt
+echo - 4GB RAM minimum >> installer\README.txt
+echo - 2GB free disk space >> installer\README.txt
+echo. >> installer\README.txt
+echo Features: >> installer\README.txt
+echo - Voice hotkey support (Ctrl+Shift+V) >> installer\README.txt
+echo - Plugin system with sandboxing >> installer\README.txt
+echo - AR overlay interface >> installer\README.txt
+echo - Live configuration toggles >> installer\README.txt
+echo - Comprehensive error handling >> installer\README.txt
 
 echo.
-echo ✅ Build completed successfully!
+echo ========================================
+echo Installation Package Created!
+echo ========================================
 echo.
-echo 📦 Distribution package created in: dist\ChatGPTPlusClone\
+echo Package location: installer\ChatGPTPlusClone\
 echo.
-echo 🚀 To install:
-echo 1. Navigate to dist\ChatGPTPlusClone\
-echo 2. Run install.bat
-echo 3. Launch ChatGPTPlusClone.exe
+echo To distribute:
+echo 1. Zip the installer\ChatGPTPlusClone\ folder
+echo 2. Share the zip file with users
 echo.
-echo 📋 Files created:
-echo - ChatGPTPlusClone.exe (main executable)
-echo - start.bat (startup script)
-echo - install.bat (installer)
-echo - README.txt (documentation)
-echo - config.json (configuration)
+echo Testing the build...
+echo.
+
+REM Test the executable
+if exist "dist\ChatGPTPlusClone\ChatGPTPlusClone.exe" (
+    echo Build test: SUCCESS
+    echo Executable file exists and is ready for distribution
+) else (
+    echo Build test: FAILED
+    echo Executable file not found
+)
+
+echo.
+echo ========================================
+echo Build process completed!
+echo ========================================
 echo.
 pause
