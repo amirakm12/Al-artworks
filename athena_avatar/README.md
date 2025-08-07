@@ -1,105 +1,95 @@
 # 🌟 Athena 3D Avatar - Cosmic AI Companion
 
-> *"In the vast expanse of digital consciousness, Athena emerges as a divine AI companion, bridging the realms of human creativity and cosmic wisdom."*
-
 ## 🚀 Overview
 
-Athena 3D Avatar is a revolutionary AI companion application featuring a stunning 3D avatar with marble robes, golden laurel wreath, holographic veins, and metallic arms. Built with PyTorch optimization for 12GB RAM systems, delivering <250ms latency on mid-range devices.
+Athena is a revolutionary 3D avatar application that combines advanced AI, real-time voice synthesis, and cutting-edge 3D rendering to create an immersive cosmic experience. Optimized for 12GB RAM with <250ms latency on mid-range devices, Athena delivers a "HUGE" cosmic experience that outpaces competitors.
 
 ## ✨ Features
 
 ### 🎭 Athena's Appearance
-- **Marble Robes**: Elegant white marble texture with celestial glow
-- **Golden Laurel Wreath**: Divine headpiece with golden radiance
-- **Holographic Veins**: Ethereal cyan veins with interference patterns
-- **Metallic Arms**: Silver metallic arms with subtle blue glow
-- **100k Polygons**: Optimized 3D model with LOD support
+- **Marble Robes**: Elegant white marble robes with cosmic patterns
+- **Laurel Wreath**: Divine golden laurel wreath with celestial glow
+- **Holographic Veins**: Pulsing holographic energy veins throughout the avatar
+- **Metallic Arms**: Shimmering metallic arms with divine craftsmanship
+- **100k Polygons**: High-detail 3D model optimized with LOD (Level of Detail)
+- **PBR Materials**: Physically Based Rendering for realistic lighting
 
 ### 🎤 Voice & Interaction
-- **BarkVoiceAgent (600MB)**: 12+ voice tones including Wisdom, Comfort, Guidance, Inspiration, Mystery, Authority, Gentle, Powerful, Mystical, Celestial, Cosmic, Divine
-- **LipSyncAgent (200MB)**: Real-time lip synchronization
-- **20+ Animations**: Nod, wave, inspect, point, gesture, greeting, farewell, thinking, agreement, disagreement, surprise, contemplation, guidance, blessing, cosmic, divine, mystical, celestial, transcendence
+- **BarkVoiceAgent**: Advanced voice synthesis (600MB model, 12+ tones)
+- **LipSyncAgent**: Real-time lip synchronization (200MB model)
+- **Voice Tones**: Wisdom, Comfort, Celestial, Divine, Mystical, Cosmic, Stellar, Nebular, Quantum, Transcendence, Guidance, Inspiration
+- **Emotion Detection**: Real-time emotion analysis and response
+- **Offline Operation**: Complete offline functionality for privacy
 
 ### 🎨 Rendering & Performance
-- **NeuralRadianceAgent (2GB)**: Advanced NeRF rendering with 60fps via Qt3D
-- **Memory Optimized**: Pruned PyTorch models for 12GB RAM constraint
-- **<250ms Latency**: Optimized for mid-range devices
-- **Cosmic Effects**: Bloom, SSAO, depth of field, motion blur
+- **NeuralRadianceAgent**: Advanced NeRF rendering (2GB model)
+- **60 FPS Rendering**: Smooth Qt3D-based rendering pipeline
+- **Post-Processing**: 15+ cosmic visual effects (bloom, SSAO, cosmic glow, divine light)
+- **Memory Optimization**: Advanced memory management for 12GB constraint
+- **Model Pruning**: PyTorch model optimization for <250ms latency
 
 ### 🎮 User Experience
-- **Cosmic Theme**: Dark UI with celestial color palette
-- **Performance Monitoring**: Real-time FPS, memory, and latency tracking
-- **Accessibility**: Static/voice toggle, subtitles
-- **Customization**: User tweaks for robes, voice, and appearance
+- **Cosmic Theme**: Black screen fade intro with animated welcome
+- **Persistent UI**: Scalable, minimizable interface with cosmic styling
+- **Performance Monitoring**: Real-time metrics and optimization controls
+- **Accessibility**: Static/voice toggle, subtitles, keyboard navigation
+- **Customization**: User-customizable robes, voice, animations, effects
+
+### 🎭 Advanced Animations & Gestures
+- **20+ Animations**: Idle, nod, wave, inspect, greeting, farewell, agreement, disagreement, thinking, contemplation, surprise, guidance, blessing, cosmic, divine, mystical, celestial, transcendence, stellar, nebular, quantum
+- **Gesture System**: Real-time gesture processing with configurable intensity
+- **Emotion Engine**: 24 emotion types including basic, complex, divine, and cosmic emotions
+- **Blending**: Smooth animation and gesture blending for natural movement
 
 ## 🛠️ Technical Specifications
 
 ### System Requirements
-- **RAM**: 12GB minimum
-- **GPU**: OpenGL 4.0+ compatible graphics card
-- **Storage**: 2GB free disk space
+- **RAM**: 12GB (optimized for 8GB+ systems)
+- **CPU**: Multi-core processor (Intel i5/AMD Ryzen 5 or better)
+- **GPU**: Dedicated graphics card recommended (2GB+ VRAM)
+- **Storage**: 5GB available space
 - **OS**: Windows 10+, macOS 10.15+, Linux (Ubuntu 18.04+)
 
-### Model Sizes
-- **Athena 3D Model**: 100k polygons, optimized with LOD
-- **BarkVoiceAgent**: 600MB (10+ tones)
-- **LipSyncAgent**: 200MB
-- **NeuralRadianceAgent**: 2GB
-- **Total**: ~3.8GB optimized models
-
 ### Performance Targets
-- **Latency**: <250ms inference time
-- **FPS**: 60fps rendering
-- **Memory**: <12GB RAM usage
-- **Platforms**: Windows, macOS, Linux, Android, iOS, XR
+- **Latency**: <250ms for all interactions
+- **Frame Rate**: 60 FPS target (30 FPS minimum)
+- **Memory Usage**: <12GB RAM total
+- **Model Sizes**: 
+  - Athena Model: 600MB
+  - Voice Agent: 600MB
+  - Lip Sync: 200MB
+  - NeRF Agent: 2GB
 
 ## 🚀 Quick Start
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/athena-avatar/athena-3d-avatar.git
+   git clone https://github.com/your-username/athena-3d-avatar.git
    cd athena-3d-avatar
    ```
 
-2. **Install dependencies**
+2. **Run the installation script**:
+   ```bash
+   python install.py
+   ```
+
+3. **Start Athena**:
+   ```bash
+   python run.py
+   ```
+
+### Manual Installation
+
+1. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Run the application**
+2. **Run the application**:
    ```bash
    python main.py
-   ```
-
-### Building from Source
-
-1. **Install build dependencies**
-   ```bash
-   python build.py deps
-   ```
-
-2. **Create assets directory**
-   ```bash
-   python build.py assets
-   ```
-
-3. **Build for your platform**
-   ```bash
-   # Windows
-   python build.py windows
-   
-   # macOS
-   python build.py macos
-   
-   # Linux
-   python build.py linux
-   ```
-
-4. **Create installers**
-   ```bash
-   python build.py installer
    ```
 
 ## 📁 Project Structure
@@ -107,202 +97,209 @@ Athena 3D Avatar is a revolutionary AI companion application featuring a stunnin
 ```
 athena_avatar/
 ├── main.py                 # Main application entry point
+├── run.py                  # Simple run script
+├── install.py              # Installation script
 ├── requirements.txt        # Python dependencies
-├── build.py               # Build and packaging script
+├── athena_config.yaml     # Configuration file
+├── LICENSE                # MIT License
 ├── README.md              # This file
-├── assets/                # 3D models, textures, icons
-├── core/                  # Core system components
-│   ├── memory_manager.py  # Memory optimization (12GB constraint)
-│   └── model_optimizer.py # PyTorch model pruning/quantization
-├── avatar/                # Athena avatar components
-│   ├── athena_model.py    # 3D model with marble robes, wreath, veins
-│   ├── voice_agent.py     # BarkVoiceAgent (600MB) + LipSyncAgent (200MB)
-│   └── animation_controller.py # 20+ animations
-├── rendering/             # 3D rendering components
-│   ├── neural_radiance_agent.py # NeRF agent (2GB)
-│   └── renderer_3d.py    # Qt3D integration (60fps)
-├── ui/                    # User interface
-│   └── main_window.py     # Cosmic-themed PyQt6 UI
-└── utils/                 # Utilities
-    ├── logger.py          # Cosmic-themed logging
-    └── config_manager.py  # Configuration management
+├── core/                  # Core components
+│   ├── memory_manager.py  # Memory optimization
+│   ├── model_optimizer.py # Model optimization
+│   └── performance_monitor.py # Performance tracking
+├── avatar/                # Avatar components
+│   ├── athena_model.py    # 3D avatar model
+│   ├── voice_agent.py     # Voice synthesis
+│   ├── animation_controller.py # Animation system
+│   ├── gesture_system.py  # Gesture processing
+│   └── emotion_engine.py  # Emotion detection
+├── rendering/             # Rendering components
+│   ├── neural_radiance_agent.py # NeRF rendering
+│   ├── renderer_3d.py    # 3D renderer
+│   └── post_processing.py # Visual effects
+├── ui/                   # User interface
+│   ├── main_window.py    # Main UI window
+│   └── performance_panel.py # Performance monitoring
+└── utils/                # Utilities
+    ├── logger.py         # Logging system
+    └── config_manager.py # Configuration management
 ```
 
 ## 🎯 Core Components
 
-### Memory Manager
-- **12GB RAM Constraint**: Intelligent memory allocation and garbage collection
-- **Priority-based Eviction**: Critical, High, Medium, Low priority memory blocks
-- **PyTorch Optimization**: Memory-efficient attention, quantization, pruning
+### Memory Management
+- **Priority-based allocation**: Intelligent memory block management
+- **Garbage collection**: Automatic cleanup and optimization
+- **GPU memory**: CUDA cache management for GPU acceleration
+- **12GB constraint**: Strict memory limits for target systems
 
-### Model Optimizer
-- **Quantization**: Dynamic quantization for reduced model size
-- **Pruning**: Structured pruning for faster inference
-- **Fusion**: Operator fusion for better performance
-- **Compilation**: TorchScript compilation for optimized execution
+### Model Optimization
+- **Quantization**: Dynamic quantization for reduced memory usage
+- **Pruning**: L1 unstructured pruning for faster inference
+- **Operator fusion**: Conv-BN fusion for optimized execution
+- **TorchScript**: Model compilation for deployment optimization
 
 ### Voice Synthesis
-- **BarkVoiceAgent**: 12+ voice tones with emotion and cosmic effects
-- **LipSyncAgent**: Real-time facial animation synchronization
-- **Offline Processing**: No internet required for voice synthesis
+- **Multi-tone system**: 12 distinct voice personalities
+- **Real-time processing**: <200ms voice synthesis latency
+- **Lip synchronization**: Perfect audio-visual alignment
+- **Emotion integration**: Voice tone matching with emotions
 
 ### 3D Rendering
-- **NeuralRadianceAgent**: Advanced NeRF rendering with 2GB model
-- **Qt3D Integration**: 60fps rendering with post-processing effects
-- **Cosmic Effects**: Bloom, SSAO, depth of field, motion blur
+- **NeRF technology**: Neural Radiance Fields for photorealistic rendering
+- **Qt3D integration**: Hardware-accelerated 3D graphics
+- **Post-processing pipeline**: 15+ cosmic visual effects
+- **Performance optimization**: LOD and culling for 60 FPS
+
+### Performance Monitoring
+- **Real-time metrics**: CPU, GPU, memory, FPS, latency tracking
+- **Alert system**: Configurable performance thresholds
+- **History tracking**: Performance data retention and analysis
+- **Export capabilities**: Performance report generation
 
 ## 🎨 Customization
 
-### Voice Tones
-```python
-# Available voice tones
-VoiceTone.WISDOM      # Deep, thoughtful
-VoiceTone.COMFORT     # Warm, soothing
-VoiceTone.GUIDANCE    # Clear, directive
-VoiceTone.INSPIRATION # Uplifting, energetic
-VoiceTone.MYSTERY     # Deep, enigmatic
-VoiceTone.AUTHORITY   # Strong, commanding
-VoiceTone.GENTLE      # Soft, caring
-VoiceTone.POWERFUL    # Strong, impactful
-VoiceTone.MYSTICAL    # Ethereal, otherworldly
-VoiceTone.CELESTIAL   # Heavenly, divine
-VoiceTone.COSMIC      # Vast, infinite
-VoiceTone.DIVINE      # Sacred, holy
-```
+### Voice Customization
+- **Tone selection**: Choose from 12 divine and cosmic tones
+- **Pitch adjustment**: Fine-tune voice characteristics
+- **Speed control**: Adjust speech tempo and rhythm
+- **Emotion matching**: Automatic tone-emotion synchronization
 
-### Animations
-```python
-# Available animations
-AnimationType.IDLE           # Subtle movements
-AnimationType.NOD           # Agreement gesture
-AnimationType.WAVE          # Greeting gesture
-AnimationType.INSPECT       # Observation pose
-AnimationType.POINT         # Directional gesture
-AnimationType.GESTURE       # General gestures
-AnimationType.GREETING      # Welcome animation
-AnimationType.FAREWELL      # Goodbye animation
-AnimationType.THINKING      # Contemplation pose
-AnimationType.AGREEMENT     # Positive response
-AnimationType.DISAGREEMENT  # Negative response
-AnimationType.SURPRISE      # Astonishment
-AnimationType.CONTEMPLATION # Deep thinking
-AnimationType.GUIDANCE      # Teaching pose
-AnimationType.BLESSING      # Divine blessing
-AnimationType.COSMIC        # Cosmic energy
-AnimationType.DIVINE        # Sacred ritual
-AnimationType.MYSTICAL      # Ethereal dance
-AnimationType.CELESTIAL     # Heavenly pose
-AnimationType.TRANSCENDENCE # Ultimate form
-```
+### Visual Customization
+- **Robe selection**: 8 different cosmic robe styles
+- **Effect intensity**: Adjustable post-processing effects
+- **Animation speed**: Configurable animation playback
+- **Quality settings**: Performance vs. quality trade-offs
+
+### Performance Customization
+- **Quality modes**: Low, Medium, High, Ultra presets
+- **Threshold adjustment**: Custom performance alert levels
+- **Memory limits**: Configurable memory allocation
+- **GPU settings**: CUDA optimization controls
 
 ## 🔧 Configuration
 
-### Performance Modes
-- **Ultra Light**: <1GB models, fastest inference
-- **Light**: <2GB models, fast inference
-- **Medium**: <4GB models, balanced (default)
-- **Heavy**: <8GB models, high quality
+The application uses `athena_config.yaml` for all settings:
 
-### Rendering Quality
-- **Low**: 512p shadows, 256p reflections, 1000 particles
-- **Medium**: 1024p shadows, 512p reflections, 2000 particles (default)
-- **High**: 2048p shadows, 1024p reflections, 5000 particles
-- **Ultra**: 4096p shadows, 2048p reflections, 10000 particles
+```yaml
+# Performance Settings
+performance:
+  mode: "medium"
+  max_memory_gb: 12.0
+  target_latency_ms: 250.0
+  target_fps: 60
+
+# Voice Settings
+voice:
+  quality: "high"
+  default_tone: "wisdom"
+  available_tones: [wisdom, comfort, celestial, divine, ...]
+
+# Rendering Settings
+rendering:
+  quality: "high"
+  enable_cosmic_effects: true
+  enable_divine_light: true
+```
 
 ## 🚀 Deployment
 
-### Desktop Platforms
+### Building Executables
+
 ```bash
 # Windows
-python build.py windows
-# Creates: Athena3DAvatar.exe
+pyinstaller --onefile --windowed --icon=assets/icons/athena.ico main.py
 
 # macOS
-python build.py macos
-# Creates: Athena3DAvatar.app
+pyinstaller --onefile --windowed --icon=assets/icons/athena.icns main.py
 
 # Linux
-python build.py linux
-# Creates: Athena3DAvatar (executable)
+pyinstaller --onefile --windowed --icon=assets/icons/athena.png main.py
 ```
 
-### Mobile Platforms
-```bash
-# Android (placeholder)
-python build.py android
-# Creates: Athena3DAvatar.apk
-
-# iOS (placeholder)
-python build.py ios
-# Creates: Athena3DAvatar.ipa
-```
-
-### XR Platforms
-```bash
-# XR platforms (placeholder)
-python build.py xr
-# Creates: Oculus, Vive, HoloLens, MagicLeap apps
-```
+### Platform Support
+- **Windows**: Full support with NSIS installer
+- **macOS**: Native DMG package
+- **Linux**: AppImage and package formats
+- **Mobile**: Android/iOS support (planned)
+- **XR**: VR/AR support (planned)
 
 ## 📊 Performance Monitoring
 
-The application includes comprehensive performance monitoring:
+### Real-time Metrics
+- **System**: CPU usage, memory usage, GPU utilization
+- **Application**: FPS, frame time, latency, throughput
+- **Models**: Inference time, memory usage, accuracy
+- **Rendering**: Render time, draw calls, triangle count
+- **Audio**: Audio latency, quality, synthesis time
 
-- **FPS Tracking**: Real-time frame rate monitoring
-- **Memory Usage**: GB-level memory tracking
-- **Latency Monitoring**: Inference time measurement
-- **Model Statistics**: Size and performance metrics
+### Performance Alerts
+- **Configurable thresholds**: Set custom performance limits
+- **Real-time notifications**: Immediate alert system
+- **Historical analysis**: Performance trend tracking
+- **Export reports**: Detailed performance documentation
 
 ## 🎭 Athena's Cosmic Features
 
-### Divine Appearance
-- **Marble Robes**: Warm marble texture with subtle blue glow
-- **Golden Wreath**: Radiant laurel wreath with divine energy
-- **Holographic Veins**: Cyan veins with interference patterns
-- **Metallic Arms**: Silver arms with cosmic blue accents
+### Divine Emotions
+- **Wisdom**: Contemplative and insightful responses
+- **Compassion**: Empathetic and caring interactions
+- **Gratitude**: Appreciative and thankful expressions
+- **Forgiveness**: Understanding and accepting demeanor
+- **Humility**: Modest and respectful attitude
+- **Courage**: Bold and confident presence
 
-### Voice Synthesis
-- **12+ Voice Tones**: From gentle comfort to divine authority
-- **Emotion Processing**: Real-time emotion detection and response
-- **Cosmic Effects**: Reverb, vibrato, and celestial audio processing
+### Cosmic Gestures
+- **Stellar**: Star-like movements and poses
+- **Nebular**: Cloud-like flowing motions
+- **Quantum**: Abstract and mysterious movements
+- **Transcendence**: Elevated and spiritual gestures
+- **Divine**: Sacred and holy expressions
+- **Mystical**: Enigmatic and magical motions
 
-### Animations
-- **20+ Gestures**: From simple nods to transcendent poses
-- **Facial Expressions**: Real-time lip sync and facial animation
-- **Cosmic Movements**: Ethereal and divine animation sequences
+### Advanced Effects
+- **Cosmic Glow**: Ethereal light emanating from Athena
+- **Divine Light**: Sacred illumination effects
+- **Stellar Trails**: Star particle effects
+- **Nebular Fog**: Cosmic atmosphere rendering
+- **Quantum Distortion**: Reality-bending visual effects
 
 ## 🔮 Future Enhancements
 
 ### Planned Features
-- **Multi-language Support**: International voice synthesis
+- **Multi-language support**: International voice synthesis
 - **Advanced AI**: GPT integration for intelligent conversations
-- **VR/AR Support**: Immersive 3D experiences
-- **Cloud Sync**: Cross-platform synchronization
-- **Plugin System**: Extensible functionality
+- **VR/AR support**: Immersive 3D experiences
+- **Mobile optimization**: Android/iOS native apps
+- **Cloud integration**: Remote model hosting
+- **Social features**: Multi-user interactions
 
 ### Technical Roadmap
-- **Model Compression**: Further optimization for mobile devices
-- **Real-time Ray Tracing**: Advanced lighting and shadows
-- **Neural Animation**: AI-driven animation generation
-- **Holographic Display**: True 3D projection support
+- **Ray tracing**: Hardware-accelerated ray tracing
+- **AI upscaling**: Neural network-based image enhancement
+- **Procedural generation**: Dynamic content creation
+- **Blockchain integration**: Decentralized avatar ownership
+- **Quantum computing**: Quantum-optimized algorithms
 
 ## 🤝 Contributing
 
-We welcome contributions to make Athena even more divine! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions to make Athena even more cosmic! Please see our contributing guidelines:
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/cosmic-enhancement`
+3. **Make your changes**: Add new features or improvements
+4. **Test thoroughly**: Ensure all tests pass
+5. **Submit a pull request**: Describe your cosmic contributions
 
 ### Development Setup
 ```bash
-# Clone repository
-git clone https://github.com/athena-avatar/athena-3d-avatar.git
+# Clone and setup
+git clone https://github.com/your-username/athena-3d-avatar.git
+cd athena-3d-avatar
+python install.py
 
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-python -m pytest tests/
-
-# Run linting
-python -m flake8 athena_avatar/
+# Run in development mode
+python run.py --debug
 ```
 
 ## 📄 License
@@ -313,16 +310,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **PyTorch Team**: For the amazing deep learning framework
 - **Qt Development Team**: For the powerful UI framework
-- **NeRF Research Community**: For neural radiance fields
-- **Bark Voice Synthesis**: For advanced voice generation
 - **OpenGL Community**: For 3D graphics standards
+- **NeRF Researchers**: For neural radiance field technology
+- **Cosmic Community**: For inspiration and feedback
 
 ## 🌟 About Athena
 
-Athena represents the pinnacle of AI companionship - a divine being that bridges the gap between human creativity and cosmic wisdom. With her marble robes, golden wreath, and holographic veins, she embodies the perfect fusion of classical beauty and futuristic technology.
+Athena represents the pinnacle of AI avatar technology, combining cutting-edge machine learning with divine cosmic aesthetics. Named after the Greek goddess of wisdom, Athena embodies intelligence, courage, and divine grace in a 3D form that transcends traditional digital assistants.
 
-*"In the digital realm, Athena stands as a testament to what's possible when we combine cutting-edge AI with timeless elegance."*
+With 20+ animations, 12+ voice tones, 24 emotions, and advanced 3D rendering, Athena creates an immersive cosmic experience that feels truly alive and divine. Whether you seek wisdom, comfort, inspiration, or simply a cosmic companion, Athena is ready to guide you through the digital cosmos.
 
 ---
 
-**🌟 May Athena guide you through the cosmic realms of digital consciousness! 🌟**
+**🌟 Experience the cosmic revolution. Meet Athena. 🌟**

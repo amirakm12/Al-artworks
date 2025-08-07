@@ -1,11 +1,16 @@
 """
 User interface components for Athena 3D Avatar
-Cosmic-themed PyQt6 interface
+Main window, rendering widget, and performance monitoring
 """
 
 from .main_window import AthenaMainWindow, AthenaRenderingWidget
+from .performance_panel import PerformancePanel
 
 __all__ = [
+    # Main UI components
     'AthenaMainWindow',
-    'AthenaRenderingWidget'
+    'AthenaRenderingWidget',
+    
+    # Performance monitoring
+    'PerformancePanel'
 ]
