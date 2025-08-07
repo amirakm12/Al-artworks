@@ -1,39 +1,66 @@
-# ChatGPT+ Clone - Complete Dependencies
-# This file includes all dependencies from the tiered requirements
+# Core UI Framework
+PyQt6>=6.4.0
+PyQt6-WebEngine>=6.4.0
+PyQt6-OpenGL>=6.4.0
 
-# Core application dependencies
--r requirements-core.txt
+# AI and Machine Learning
+torch>=2.0.0
+torchaudio>=2.0.0
+torchvision>=0.15.0
+transformers>=4.30.0
+accelerate>=0.20.0
+diffusers>=0.21.0
+controlnet-aux>=0.0.6
 
-# Voice processing capabilities
--r requirements-voice.txt
+# Speech Recognition and Synthesis
+openai-whisper>=20231117
+TTS>=0.17.0
+sounddevice>=0.4.6
+pyaudio>=0.2.11
 
-# Image generation and editing
--r requirements-image.txt
+# Local LLM Support
+ollama>=0.1.0
 
-# Development and building tools
--r requirements-dev.txt
+# Image Processing
+opencv-python>=4.8.0
+Pillow>=9.5.0
+imageio>=2.31.0
+numpy>=1.21.0
 
-# Plugin system and sandbox isolation
--r requirements-plugins.txt
-
-# Web scraping and browser tools
+# Web and Network
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 playwright>=1.35.0
 selenium>=4.10.0
 duckduckgo-search>=3.9.0
 
-# Code execution and sandbox
-jupyter>=1.0.0
-ipykernel>=6.25.0
-virtualenv>=20.24.0
+# Vector Database and Embeddings
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
 
-# Additional utilities
-aiohttp>=3.8.0
-uvloop>=0.16.0
-concurrent-futures>=3.1.1
-weakref2>=1.0.0
+# System and Utilities
+psutil>=5.8.0
+keyboard>=0.13.5
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+rich>=13.0.0
+aiofiles>=0.7.0
+watchdog>=3.0.0
 
-# Optional: GPU Acceleration (uncomment for CUDA support)
-# torch-cuda>=2.0.0  # Uncomment if CUDA is available
-# faiss-gpu>=1.7.4   # Uncomment for GPU vector search
+# Development and Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pyinstaller>=5.13.0
+
+# Security and Sandboxing
+restrictedpython>=6.0.0
+
+# Performance Monitoring
+GPUtil>=1.4.0
+
+# Optional: GPU-specific optimizations
+# Uncomment if you have CUDA GPU
+# torch-scatter>=2.1.0
+# torch-sparse>=0.6.0
+# torch-geometric>=2.3.0
