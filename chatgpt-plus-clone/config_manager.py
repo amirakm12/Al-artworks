@@ -212,6 +212,56 @@ class ConfigManager:
             "warnings": warnings
         }
 
+# Default application settings
+DEFAULT_APP_SETTINGS = {
+    "voice_hotkey_enabled": True,
+    "enable_plugins": True,
+    "enable_ar_overlay": False,
+    "enable_code_interpreter": True,
+    "enable_image_editor": True,
+    "enable_web_browser": True,
+    "enable_file_upload": True,
+    "enable_memory_system": True,
+    "enable_vs_code_integration": True,
+    "auto_save_chat": True,
+    "startup_minimize": False,
+    "check_updates": True,
+    "debug_mode": False,
+    "show_technical_info": False,
+}
+
+# Default voice settings
+DEFAULT_VOICE_SETTINGS = {
+    "enabled": True,
+    "hotkey": "ctrl+shift+v",
+    "sample_rate": 16000,
+    "recording_duration": 5,
+    "silence_threshold": 10,
+    "tts_enabled": True,
+    "tts_engine": "TTS",
+    "tts_voice": "Default",
+}
+
+# Default UI settings
+DEFAULT_UI_SETTINGS = {
+    "theme": "System",
+    "font_size": 12,
+    "window_opacity": 100,
+    "show_technical_info": False,
+    "window_width": 1400,
+    "window_height": 900,
+}
+
+# Default LLM settings
+DEFAULT_LLM_SETTINGS = {
+    "default_model": "dolphin-mixtral:8x22b",
+    "temperature": 70,
+    "max_tokens": 2048,
+    "ollama_url": "http://localhost:11434",
+    "timeout": 30,
+    "retry_attempts": 3,
+}
+
 # Global config manager instance
 config_manager = ConfigManager()
 
@@ -235,6 +285,42 @@ def get_plugin_config(plugin_name: str) -> Dict[str, Any]:
 def set_plugin_config(plugin_name: str, config: Dict[str, Any]):
     """Set plugin configuration"""
     config_manager.set_plugin_config(plugin_name, config)
+
+def get_app_settings() -> Dict[str, Any]:
+    """Get application settings with defaults merged"""
+    settings = config_manager.get_app_settings()
+    return {**DEFAULT_APP_SETTINGS, **settings}
+
+def set_app_settings(settings: Dict[str, Any]):
+    """Set application settings"""
+    config_manager.set_app_settings(settings)
+
+def get_voice_settings() -> Dict[str, Any]:
+    """Get voice settings with defaults merged"""
+    settings = config_manager.get_voice_settings()
+    return {**DEFAULT_VOICE_SETTINGS, **settings}
+
+def set_voice_settings(settings: Dict[str, Any]):
+    """Set voice settings"""
+    config_manager.set_voice_settings(settings)
+
+def get_ui_settings() -> Dict[str, Any]:
+    """Get UI settings with defaults merged"""
+    settings = config_manager.get_ui_settings()
+    return {**DEFAULT_UI_SETTINGS, **settings}
+
+def set_ui_settings(settings: Dict[str, Any]):
+    """Set UI settings"""
+    config_manager.set_ui_settings(settings)
+
+def get_llm_settings() -> Dict[str, Any]:
+    """Get LLM settings with defaults merged"""
+    settings = config_manager.get_llm_settings()
+    return {**DEFAULT_LLM_SETTINGS, **settings}
+
+def set_llm_settings(settings: Dict[str, Any]):
+    """Set LLM settings"""
+    config_manager.set_llm_settings(settings)
 
 if __name__ == "__main__":
     # Test the config manager

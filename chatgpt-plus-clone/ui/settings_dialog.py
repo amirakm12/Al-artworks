@@ -12,7 +12,7 @@ from PyQt6.QtGui import QFont
 from typing import Dict, Any
 import json
 from pathlib import Path
-from config_manager import ConfigManager
+from config_manager import ConfigManager, DEFAULT_APP_SETTINGS, DEFAULT_VOICE_SETTINGS, DEFAULT_UI_SETTINGS, DEFAULT_LLM_SETTINGS
 
 class SettingsDialog(QDialog):
     """Main settings dialog for ChatGPT+ Clone"""
@@ -20,6 +20,7 @@ class SettingsDialog(QDialog):
     # Signals
     settings_changed = pyqtSignal(dict)
     voice_hotkey_toggled = pyqtSignal(bool)  # Signal for live voice hotkey toggle
+    toggle_changed = pyqtSignal(str, bool)  # Signal for any toggle change: (toggle_name, new_value)
     
     def __init__(self, current_settings: Dict[str, Any] = None, parent=None):
         super().__init__(parent)
