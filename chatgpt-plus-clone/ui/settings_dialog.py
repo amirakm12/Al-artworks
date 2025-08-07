@@ -12,6 +12,7 @@ from PyQt6.QtGui import QFont
 from typing import Dict, Any
 import json
 from pathlib import Path
+from config_manager import ConfigManager
 
 class SettingsDialog(QDialog):
     """Main settings dialog for ChatGPT+ Clone"""
@@ -21,6 +22,7 @@ class SettingsDialog(QDialog):
     
     def __init__(self, current_settings: Dict[str, Any] = None, parent=None):
         super().__init__(parent)
+        self.config = ConfigManager()
         self.current_settings = current_settings or self.load_default_settings()
         self.setup_ui()
         self.load_settings()
@@ -351,44 +353,48 @@ class SettingsDialog(QDialog):
     
     def load_settings(self):
         """Load current settings into UI"""
-        settings = self.current_settings
+        # Load from config manager
+        app_settings = self.config.get_app_settings()
+        voice_settings = self.config.get_voice_settings()
+        ui_settings = self.config.get_ui_settings()
+        llm_settings = self.config.get_llm_settings()
         
         # Voice settings
-        self.voice_enabled.setChecked(settings.get('voice_enabled', True))
-        self.voice_hotkey.setText(settings.get('voice_hotkey', 'ctrl+shift+v'))
-        self.sample_rate.setCurrentText(str(settings.get('sample_rate', 16000)))
-        self.recording_duration.setValue(settings.get('recording_duration', 5))
-        self.silence_threshold.setValue(settings.get('silence_threshold', 10))
-        self.tts_enabled.setChecked(settings.get('tts_enabled', True))
-        self.tts_engine.setCurrentText(settings.get('tts_engine', 'TTS'))
-        self.tts_voice.setCurrentText(settings.get('tts_voice', 'Default'))
+        self.voice_enabled.setChecked(voice_settings.get('enabled', True))
+        self.voice_hotkey.setText(voice_settings.get('hotkey', 'ctrl+shift+v'))
+        self.sample_rate.setCurrentText(str(voice_settings.get('sample_rate', 16000)))
+        self.recording_duration.setValue(voice_settings.get('recording_duration', 5))
+        self.silence_threshold.setValue(voice_settings.get('silence_threshold', 10))
+        self.tts_enabled.setChecked(voice_settings.get('tts_enabled', True))
+        self.tts_engine.setCurrentText(voice_settings.get('tts_engine', 'TTS'))
+        self.tts_voice.setCurrentText(voice_settings.get('tts_voice', 'Default'))
         
         # Plugin settings
-        self.plugin_hot_reload.setChecked(settings.get('plugin_hot_reload', True))
-        self.plugin_debug.setChecked(settings.get('plugin_debug', False))
-        self.plugin_sandbox.setChecked(settings.get('plugin_sandbox', True))
-        self.plugin_directory.setText(settings.get('plugin_directory', 'plugins'))
+        self.plugin_hot_reload.setChecked(app_settings.get('plugin_hot_reload', True))
+        self.plugin_debug.setChecked(app_settings.get('plugin_debug', False))
+        self.plugin_sandbox.setChecked(app_settings.get('plugin_sandbox', True))
+        self.plugin_directory.setText(app_settings.get('plugin_directory', 'plugins'))
         
         # App settings
-        self.auto_save.setChecked(settings.get('auto_save', True))
-        self.startup_minimize.setChecked(settings.get('startup_minimize', False))
-        self.check_updates.setChecked(settings.get('check_updates', True))
-        self.theme.setCurrentText(settings.get('theme', 'System'))
-        self.font_size.setValue(settings.get('font_size', 12))
-        self.window_opacity.setValue(settings.get('window_opacity', 100))
-        self.max_conversations.setValue(settings.get('max_conversations', 100))
-        self.max_memory_size.setCurrentText(settings.get('max_memory_size', '1GB'))
+        self.auto_save.setChecked(app_settings.get('auto_save', True))
+        self.startup_minimize.setChecked(app_settings.get('startup_minimize', False))
+        self.check_updates.setChecked(app_settings.get('check_updates', True))
+        self.theme.setCurrentText(ui_settings.get('theme', 'System'))
+        self.font_size.setValue(ui_settings.get('font_size', 12))
+        self.window_opacity.setValue(ui_settings.get('window_opacity', 100))
+        self.max_conversations.setValue(app_settings.get('max_conversations', 100))
+        self.max_memory_size.setCurrentText(app_settings.get('max_memory_size', '1GB'))
         
         # Advanced settings
-        self.default_model.setCurrentText(settings.get('default_model', 'dolphin-mixtral:8x22b'))
-        self.model_temperature.setValue(settings.get('model_temperature', 70))
-        self.max_tokens.setValue(settings.get('max_tokens', 2048))
-        self.ollama_url.setText(settings.get('ollama_url', 'http://localhost:11434'))
-        self.timeout.setValue(settings.get('timeout', 30))
-        self.retry_attempts.setValue(settings.get('retry_attempts', 3))
-        self.debug_mode.setChecked(settings.get('debug_mode', False))
-        self.log_level.setCurrentText(settings.get('log_level', 'INFO'))
-        self.show_technical_info.setChecked(settings.get('show_technical_info', False))
+        self.default_model.setCurrentText(llm_settings.get('default_model', 'dolphin-mixtral:8x22b'))
+        self.model_temperature.setValue(llm_settings.get('temperature', 70))
+        self.max_tokens.setValue(llm_settings.get('max_tokens', 2048))
+        self.ollama_url.setText(llm_settings.get('ollama_url', 'http://localhost:11434'))
+        self.timeout.setValue(llm_settings.get('timeout', 30))
+        self.retry_attempts.setValue(llm_settings.get('retry_attempts', 3))
+        self.debug_mode.setChecked(app_settings.get('debug_mode', False))
+        self.log_level.setCurrentText(app_settings.get('log_level', 'INFO'))
+        self.show_technical_info.setChecked(ui_settings.get('show_technical_info', False))
     
     def save_settings(self):
         """Save current UI settings"""

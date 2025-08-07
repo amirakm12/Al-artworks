@@ -11,6 +11,9 @@ import time
 from typing import Dict, Any, List, Optional, Callable
 from pathlib import Path
 
+# Config manager import
+from config_manager import ConfigManager
+
 # Hot-reload imports
 try:
     from watchdog.observers import Observer
@@ -73,6 +76,9 @@ class PluginLoader:
         self.plugins_dir = Path("plugins")
         self.plugins_dir.mkdir(exist_ok=True)
         
+        # Config manager
+        self.config = ConfigManager()
+        
         # Threading for hot-reload
         self.lock = threading.Lock()
         self.observer = None
@@ -112,11 +118,20 @@ class PluginLoader:
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             
+            # Inject config API to plugin if it has set_config_api function
+            plugin_name = plugin_path.stem
+            if hasattr(module, "set_config_api"):
+                module.set_config_api(
+                    get_config=lambda: self.config.get_plugin_config(plugin_name),
+                    save_config=lambda cfg: self.config.set_plugin_config(plugin_name, cfg)
+                )
+            
             # Get plugin metadata
             if hasattr(module, 'on_load'):
                 metadata = module.on_load()
                 metadata['module'] = module
                 metadata['path'] = str(plugin_path)
+                metadata['name'] = plugin_name
                 return metadata
             else:
                 self.logger.warning(f"Plugin {plugin_path.name} missing on_load function")
