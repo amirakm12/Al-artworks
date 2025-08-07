@@ -51,8 +51,13 @@ class ChatGPTPlusClone(QMainWindow):
         
         # Initialize plugin system
         self.plugin_loader = PluginLoader()
-        self.plugins = self.plugin_loader.load_plugins()
+        self.plugins = []
+        self.plugins_active = False
         self.plugin_loader.start_watching(self.reload_plugins)
+        
+        # Initialize AR overlay
+        self.ar_overlay_instance = None
+        self.ar_overlay_active = False
         
         # Setup UI
         self.setup_ui()
@@ -347,6 +352,7 @@ class ChatGPTPlusClone(QMainWindow):
         try:
             dialog = SettingsDialog(parent=self)
             dialog.voice_hotkey_toggled.connect(self.on_voice_hotkey_toggled)
+            dialog.toggle_changed.connect(self.on_toggle_changed)
             dialog.settings_changed.connect(self.on_settings_changed)
             dialog.exec()
         except Exception as e:
@@ -375,17 +381,173 @@ class ChatGPTPlusClone(QMainWindow):
         else:
             self.stop_voice_listener()
     
+    def on_toggle_changed(self, toggle_name: str, enabled: bool):
+        """Handle any toggle change from settings"""
+        print(f"[Main] Toggle changed: {toggle_name} -> {enabled}")
+        
+        # Update app settings
+        app_settings = self.config.get_app_settings()
+        app_settings[toggle_name] = enabled
+        self.config.set_app_settings(app_settings)
+        
+        # Apply the toggle change
+        if toggle_name == "voice_hotkey_enabled":
+            if enabled:
+                self.start_voice_listener()
+            else:
+                self.stop_voice_listener()
+                
+        elif toggle_name == "enable_plugins":
+            if enabled:
+                self.enable_plugins()
+            else:
+                self.disable_plugins()
+                
+        elif toggle_name == "enable_ar_overlay":
+            if enabled:
+                self.enable_ar_overlay()
+            else:
+                self.disable_ar_overlay()
+                
+        elif toggle_name == "enable_code_interpreter":
+            # Toggle code interpreter tool
+            if enabled:
+                self.agent_orchestrator.enable_tool("code_interpreter")
+            else:
+                self.agent_orchestrator.disable_tool("code_interpreter")
+                
+        elif toggle_name == "enable_image_editor":
+            # Toggle image editor tool
+            if enabled:
+                self.agent_orchestrator.enable_tool("image_editor")
+            else:
+                self.agent_orchestrator.disable_tool("image_editor")
+                
+        elif toggle_name == "enable_web_browser":
+            # Toggle web browser tool
+            if enabled:
+                self.agent_orchestrator.enable_tool("web_browser")
+            else:
+                self.agent_orchestrator.disable_tool("web_browser")
+                
+        elif toggle_name == "enable_memory_system":
+            # Toggle memory system
+            if enabled:
+                self.memory_manager.enable()
+            else:
+                self.memory_manager.disable()
+                
+        elif toggle_name == "enable_vs_code_integration":
+            # Toggle VS Code integration
+            if enabled:
+                self.vs_code_integration.enable()
+            else:
+                self.vs_code_integration.disable()
+                
+        else:
+            print(f"[Main] No handler for toggle: {toggle_name}")
+    
     def on_settings_changed(self, settings: dict):
         """Handle settings changes"""
         print(f"[Main] Settings changed: {settings}")
         self.statusBar().showMessage("Settings updated")
     
+    def enable_plugins(self):
+        """Enable and start all plugins"""
+        if not self.plugins_active:
+            print("[Main] Loading plugins...")
+            try:
+                self.plugins = self.plugin_loader.load_plugins()
+                
+                # Start each plugin if it has a start method
+                for plugin in self.plugins:
+                    if hasattr(plugin, 'module') and hasattr(plugin['module'], 'on_start'):
+                        try:
+                            plugin['module'].on_start()
+                            print(f"[Main] Started plugin: {plugin.get('name', 'Unknown')}")
+                        except Exception as e:
+                            print(f"[Main] Error starting plugin {plugin.get('name', 'Unknown')}: {e}")
+                
+                self.plugins_active = True
+                self.statusBar().showMessage(f"Plugins enabled: {len(self.plugins)} loaded")
+                print(f"[Main] {len(self.plugins)} plugins loaded and started")
+                
+            except Exception as e:
+                self.statusBar().showMessage(f"Failed to load plugins: {e}")
+                print(f"[Main] Failed to load plugins: {e}")
+    
+    def disable_plugins(self):
+        """Disable and stop all plugins"""
+        if self.plugins_active:
+            print("[Main] Stopping plugins...")
+            try:
+                # Stop each plugin if it has a stop method
+                for plugin in self.plugins:
+                    if hasattr(plugin, 'module') and hasattr(plugin['module'], 'on_stop'):
+                        try:
+                            plugin['module'].on_stop()
+                            print(f"[Main] Stopped plugin: {plugin.get('name', 'Unknown')}")
+                        except Exception as e:
+                            print(f"[Main] Error stopping plugin {plugin.get('name', 'Unknown')}: {e}")
+                
+                self.plugins = []
+                self.plugins_active = False
+                self.statusBar().showMessage("Plugins disabled")
+                print("[Main] Plugins stopped and unloaded")
+                
+            except Exception as e:
+                self.statusBar().showMessage(f"Failed to stop plugins: {e}")
+                print(f"[Main] Failed to stop plugins: {e}")
+    
+    def enable_ar_overlay(self):
+        """Enable AR overlay"""
+        if not self.ar_overlay_active:
+            print("[Main] Starting AR overlay...")
+            try:
+                from overlay_ar import AROverlay
+                self.ar_overlay_instance = AROverlay()
+                self.ar_overlay_instance.show()
+                self.ar_overlay_active = True
+                self.statusBar().showMessage("AR overlay enabled")
+                print("[Main] AR overlay started")
+                
+            except ImportError:
+                self.statusBar().showMessage("AR overlay module not available")
+                print("[Main] AR overlay module not available")
+            except Exception as e:
+                self.statusBar().showMessage(f"Failed to start AR overlay: {e}")
+                print(f"[Main] Failed to start AR overlay: {e}")
+    
+    def disable_ar_overlay(self):
+        """Disable AR overlay"""
+        if self.ar_overlay_active:
+            print("[Main] Stopping AR overlay...")
+            try:
+                if self.ar_overlay_instance:
+                    self.ar_overlay_instance.close()
+                    self.ar_overlay_instance = None
+                self.ar_overlay_active = False
+                self.statusBar().showMessage("AR overlay disabled")
+                print("[Main] AR overlay stopped")
+                
+            except Exception as e:
+                self.statusBar().showMessage(f"Failed to stop AR overlay: {e}")
+                print(f"[Main] Failed to stop AR overlay: {e}")
+    
     def reload_plugins(self):
         """Reload plugins when changes detected"""
         try:
-            self.plugins = self.plugin_loader.load_plugins()
+            if self.plugins_active:
+                # Reload plugins if they're currently enabled
+                self.disable_plugins()
+                self.enable_plugins()
+            else:
+                # Just reload the plugin list without starting them
+                self.plugins = self.plugin_loader.load_plugins()
+            
             self.statusBar().showMessage(f"Plugins reloaded: {len(self.plugins)} loaded")
             print(f"[Main] Plugins reloaded: {len(self.plugins)} plugins")
+            
         except Exception as e:
             self.statusBar().showMessage(f"Error reloading plugins: {e}")
             print(f"[Main] Error reloading plugins: {e}")
