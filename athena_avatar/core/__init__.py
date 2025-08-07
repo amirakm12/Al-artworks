@@ -1,16 +1,25 @@
 """
 Core components for Athena 3D Avatar
-Memory management and model optimization
+Memory management, model optimization, and performance monitoring
 """
 
 from .memory_manager import MemoryManager, MemoryPriority, MemoryBlock
 from .model_optimizer import ModelOptimizer, OptimizationLevel, ModelConfig
+from .performance_monitor import PerformanceMonitor, MetricType, PerformanceMetric
 
 __all__ = [
+    # Memory management
     'MemoryManager',
-    'MemoryPriority', 
+    'MemoryPriority',
     'MemoryBlock',
+    
+    # Model optimization
     'ModelOptimizer',
     'OptimizationLevel',
-    'ModelConfig'
+    'ModelConfig',
+    
+    # Performance monitoring
+    'PerformanceMonitor',
+    'MetricType',
+    'PerformanceMetric'
 ]
