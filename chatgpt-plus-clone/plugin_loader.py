@@ -188,7 +188,7 @@ class PluginLoader:
         return results
     
     def start_watching(self, reload_callback: Callable):
-        """Start watching plugins directory for changes"""
+        """Start watching plugins directory for changes with enhanced monitoring"""
         if not WATCHDOG_AVAILABLE:
             self.logger.warning("Watchdog not available - hot-reload disabled")
             return
@@ -201,16 +201,36 @@ class PluginLoader:
             event_handler = PluginReloadHandler(self.reload_plugins)
             
             self.observer = Observer()
-            self.observer.schedule(event_handler, str(self.plugins_dir), recursive=False)
+            
+            # Watch plugins directory recursively
+            self.observer.schedule(event_handler, str(self.plugins_dir), recursive=True)
+            
+            # Watch for config changes that might affect plugins
+            config_file = Path("config.json")
+            if config_file.exists():
+                self.observer.schedule(event_handler, str(config_file), recursive=False)
+            
+            # Watch for requirements changes
+            requirements_file = Path("requirements-plugins.txt")
+            if requirements_file.exists():
+                self.observer.schedule(event_handler, str(requirements_file), recursive=False)
+            
             self.observer.start()
-            
             self.watching = True
-            self.logger.info(f"🔄 Started watching {self.plugins_dir} for changes")
+            self.logger.info(f"🔄 Started enhanced watching for plugin changes")
             
-            # Start watching thread
-            def watch_thread():
+            # Start enhanced monitoring thread
+            def enhanced_watch_thread():
                 try:
+                    last_check = time.time()
                     while self.watching:
+                        current_time = time.time()
+                        
+                        # Check for file changes every 2 seconds
+                        if current_time - last_check > 2:
+                            self._check_for_changes()
+                            last_check = current_time
+                        
                         time.sleep(1)
                 except KeyboardInterrupt:
                     self.stop_watching()
@@ -218,11 +238,31 @@ class PluginLoader:
                     if self.observer:
                         self.observer.join()
             
-            thread = threading.Thread(target=watch_thread, daemon=True)
+            thread = threading.Thread(target=enhanced_watch_thread, daemon=True)
             thread.start()
             
         except Exception as e:
             self.logger.error(f"Error starting plugin watcher: {e}")
+    
+    def _check_for_changes(self):
+        """Additional change detection for files that might be missed"""
+        try:
+            for plugin_file in self.plugins_dir.glob("*.py"):
+                if plugin_file.name.startswith("_"):
+                    continue
+                
+                # Check if file has been modified recently
+                stat = plugin_file.stat()
+                current_time = time.time()
+                
+                # If file was modified in the last 3 seconds, trigger reload
+                if current_time - stat.st_mtime < 3:
+                    self.logger.info(f"🔄 Detected recent change in {plugin_file.name}")
+                    self.reload_plugins()
+                    break
+                    
+        except Exception as e:
+            self.logger.error(f"Error in change detection: {e}")
     
     def stop_watching(self):
         """Stop watching plugins directory"""

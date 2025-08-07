@@ -244,15 +244,57 @@ class AROverlay(QGraphicsView):
             self.scene.addItem(bar)
     
     def update_animations(self):
-        """Update all animations"""
-        # Update text glow effects
+        """Update all animations with enhanced 3D effects"""
+        current_time = time.time()
+        
+        # Update text glow effects with pulsing
         for text in self.text_elements:
             if isinstance(text, HolographicText):
-                # Pulse the glow effect
-                current_color = text.defaultTextColor()
-                alpha = 150 + int(50 * math.sin(time.time() * 2))
-                new_color = QColor(current_color.red(), current_color.green(), current_color.blue(), alpha)
+                # Enhanced pulsing effect
+                pulse = math.sin(current_time * 2) * 0.5 + 0.5
+                alpha = 150 + int(50 * pulse)
+                new_color = QColor(0, 255, 255, alpha)
                 text.setDefaultTextColor(new_color)
+                
+                # Add subtle movement
+                offset = math.sin(current_time + text.pos().x() * 0.01) * 2
+                text.setPos(text.pos().x(), text.pos().y() + offset)
+        
+        # Update neural network nodes with enhanced effects
+        for i, node in enumerate(self.neural_nodes):
+            if isinstance(node, NeuralNode):
+                # Enhanced pulsing with individual timing
+                pulse = math.sin(current_time * 3 + i * 0.5) * 0.5 + 0.5
+                node.setScale(1.0 + pulse * 0.3)
+                
+                # Color cycling effect
+                hue = (current_time * 30 + i * 30) % 360
+                color = QColor.fromHsv(int(hue), 255, 255, 200)
+                node.setBrush(QBrush(color))
+        
+        # Update data flow lines with enhanced animation
+        for i, flow in enumerate(self.data_flows):
+            if isinstance(flow, DataFlowLine):
+                # Enhanced flow speed
+                flow.animation_progress += 0.02 + (i * 0.01)
+                if flow.animation_progress > 1.0:
+                    flow.animation_progress = 0.0
+                
+                # Add particle effects
+                self._add_particle_effects(flow, current_time)
+        
+        # Add holographic distortion effects
+        self._add_distortion_effects(current_time)
+    
+    def _add_particle_effects(self, flow_line, current_time):
+        """Add particle effects to data flow lines"""
+        # This would add floating particles along the data flow
+        pass
+    
+    def _add_distortion_effects(self, current_time):
+        """Add holographic distortion effects"""
+        # This would add wave-like distortion effects
+        pass
     
     def keyPressEvent(self, event):
         """Handle key press events"""

@@ -93,14 +93,67 @@ class VoiceHotkeyListener:
         self.logger.debug("Voice hotkey listener loop ended")
     
     def _on_hotkey_pressed(self):
-        """Handle hotkey press"""
+        """Handle hotkey press with enhanced robustness"""
+        # Prevent multiple simultaneous recordings
         if self.is_recording:
             self.logger.debug("Already recording, ignoring hotkey press")
             return
         
-        # Start recording in a separate thread
-        self.recording_thread = threading.Thread(target=self._start_voice_session, daemon=True)
-        self.recording_thread.start()
+        # Check if we're in a valid state
+        if not self.is_running:
+            self.logger.warning("Voice listener not running, ignoring hotkey")
+            return
+        
+        # Add debouncing to prevent rapid-fire presses
+        current_time = time.time()
+        if hasattr(self, '_last_press_time'):
+            if current_time - self._last_press_time < 0.5:  # 500ms debounce
+                self.logger.debug("Hotkey press debounced")
+                return
+        
+        self._last_press_time = current_time
+        
+        # Start recording in a separate thread with error handling
+        try:
+            self.recording_thread = threading.Thread(
+                target=self._start_voice_session, 
+                daemon=True,
+                name=f"VoiceSession-{current_time}"
+            )
+            self.recording_thread.start()
+            
+            # Set a timeout for the recording thread
+            self.recording_timeout = threading.Timer(30.0, self._timeout_recording)
+            self.recording_timeout.start()
+            
+        except Exception as e:
+            self.logger.error(f"Failed to start voice session: {e}")
+            self.is_recording = False
+    
+    def _timeout_recording(self):
+        """Timeout handler for recording sessions"""
+        if self.is_recording:
+            self.logger.warning("Voice recording session timed out")
+            self._stop_recording()
+    
+    def _stop_recording(self):
+        """Stop current recording with enhanced cleanup"""
+        if not self.is_recording:
+            return
+        
+        self.is_recording = False
+        
+        # Cancel timeout timer
+        if hasattr(self, 'recording_timeout'):
+            self.recording_timeout.cancel()
+        
+        # Wait for recording thread to finish (with timeout)
+        if self.recording_thread and self.recording_thread.is_alive():
+            self.recording_thread.join(timeout=2.0)
+            if self.recording_thread.is_alive():
+                self.logger.warning("Recording thread did not finish gracefully")
+        
+        self.logger.info("Voice recording stopped")
     
     def _start_voice_session(self):
         """Start a voice recording session"""
