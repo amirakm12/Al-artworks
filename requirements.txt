@@ -1,34 +1,58 @@
-# Advanced Pipeline Optimization Dependencies
-# Core numerical and scientific computing
+# Core UI Framework
+PyQt6>=6.4.0
+PyQt6-WebEngine>=6.4.0
+
+# AI and Machine Learning
+torch>=2.0.0
+torchaudio>=2.0.0
+transformers>=4.30.0
+accelerate>=0.20.0
+diffusers>=0.21.0
+controlnet-aux>=0.0.6
+
+# Voice Processing
+openai-whisper>=20231117
+TTS>=0.17.0
+sounddevice>=0.4.6
+pyaudio>=0.2.11
+
+# Audio and Media
 numpy>=1.21.0
-numba>=0.56.0
+imageio>=2.31.0
+Pillow>=9.5.0
+opencv-python>=4.8.0
 
-# System monitoring and process management
+# Web Integration
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+playwright>=1.35.0
+selenium>=4.10.0
+duckduckgo-search>=3.9.0
+
+# Vector Databases and Search
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# System Utilities
 psutil>=5.8.0
+keyboard>=0.13.5
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+rich>=13.0.0
 
-# Asynchronous I/O and networking
+# Development and Build Tools
+pyinstaller>=5.13.0
+watchdog>=3.0.0
 aiofiles>=0.7.0
-aiohttp>=3.8.0
-uvloop>=0.16.0
 
-# Concurrent programming utilities
-concurrent-futures>=3.1.1
+# GPU Monitoring (Optional)
+pynvml>=11.450.132
 
-# Memory management and weak references
-weakref2>=1.0.0
+# Local LLM Support
+ollama>=0.1.0
 
-# Optional: GPU acceleration (CUDA)
-# numba-cuda>=0.56.0  # Uncomment if CUDA is available
-
-# Optional: Additional performance monitoring
-# memory-profiler>=0.60.0  # For detailed memory profiling
-# line-profiler>=3.4.0     # For line-by-line profiling
-
-# Development and testing dependencies
-pytest>=6.2.0
-pytest-asyncio>=0.15.0
-pytest-benchmark>=3.4.0
-
-# Documentation
-sphinx>=4.0.0
-sphinx-rtd-theme>=0.5.0 
+# Additional Utilities
+jupyter>=1.0.0
+ipykernel>=6.25.0
+virtualenv>=20.24.0 
