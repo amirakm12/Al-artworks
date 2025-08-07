@@ -1,6 +1,6 @@
 """
-Plugin Loader - Advanced Plugin Management with Hot-Reload
-Loads plugins from plugins/ directory with live reloading capabilities
+Plugin Loader - Advanced Plugin Management with Hot-Reload and Sandboxing
+Loads plugins from plugins/ directory with live reloading capabilities and security
 """
 
 import os
@@ -16,6 +16,14 @@ from pathlib import Path
 
 # Config manager import
 from config_manager import ConfigManager
+
+# Sandboxing imports
+try:
+    from RestrictedPython import compile_restricted, safe_globals, utility_builtins
+    RESTRICTED_PYTHON_AVAILABLE = True
+except ImportError:
+    RESTRICTED_PYTHON_AVAILABLE = False
+    logging.warning("RestrictedPython not available - using basic sandbox")
 
 # Hot-reload imports
 try:
