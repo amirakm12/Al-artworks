@@ -1,0 +1,60 @@
+# ChatGPT+ Clone - Complete Dependencies
+# Core Application
+PyQt6>=6.4.0
+PyQt6-WebEngine>=6.4.0
+
+# LLM and AI
+ollama>=0.1.0
+transformers>=4.30.0
+torch>=2.0.0
+torchaudio>=2.0.0
+accelerate>=0.20.0
+
+# Voice Processing
+openai-whisper>=20231117
+TTS>=0.17.0
+sounddevice>=0.4.6
+pyaudio>=0.2.11
+numpy>=1.21.0
+
+# Image Generation and Editing
+diffusers>=0.21.0
+controlnet-aux>=0.0.6
+opencv-python>=4.8.0
+Pillow>=9.5.0
+imageio>=2.31.0
+
+# Web Scraping and Browser Tools
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+playwright>=1.35.0
+selenium>=4.10.0
+duckduckgo-search>=3.9.0
+
+# Code Execution and Sandbox
+jupyter>=1.0.0
+ipykernel>=6.25.0
+virtualenv>=20.24.0
+
+# Memory and Vector Storage
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# File Handling and Workspace
+aiofiles>=0.7.0
+watchdog>=3.0.0
+
+# Development and Building
+pyinstaller>=5.13.0
+keyboard>=0.13.5
+
+# Additional Utilities
+psutil>=5.8.0
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+rich>=13.0.0
+
+# Optional: GPU Acceleration
+# torch-cuda>=2.0.0  # Uncomment for CUDA support
+# faiss-gpu>=1.7.4   # Uncomment for GPU vector search
