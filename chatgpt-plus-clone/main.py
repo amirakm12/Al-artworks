@@ -176,12 +176,40 @@ class ChatGPTPlusClone(QMainWindow):
     
     def setup_voice_hotkey(self):
         """Setup global voice hotkey listener"""
+        # Check if voice hotkey is enabled in config
+        voice_settings = self.config.get_voice_settings()
+        voice_enabled = voice_settings.get('enabled', True)
+        
+        if voice_enabled:
+            self.start_voice_listener()
+        else:
+            self.statusBar().showMessage("Voice hotkey disabled in settings")
+    
+    def start_voice_listener(self):
+        """Start the voice hotkey listener"""
         try:
-            import keyboard
-            keyboard.add_hotkey('ctrl+shift+v', self.activate_voice)
+            self.voice_listener = start_voice_listener(callback=self.handle_voice_command)
             self.statusBar().showMessage("Voice hotkey enabled: Ctrl+Shift+V")
-        except ImportError:
-            self.statusBar().showMessage("Voice hotkey disabled - keyboard module not available")
+            print("[Main] Voice hotkey listener started")
+        except Exception as e:
+            self.statusBar().showMessage(f"Voice hotkey error: {e}")
+            print(f"[Main] Voice hotkey error: {e}")
+    
+    def stop_voice_listener(self):
+        """Stop the voice hotkey listener"""
+        try:
+            stop_voice_listener()
+            self.voice_listener = None
+            self.statusBar().showMessage("Voice hotkey disabled")
+            print("[Main] Voice hotkey listener stopped")
+        except Exception as e:
+            print(f"[Main] Error stopping voice listener: {e}")
+    
+    def handle_voice_command(self, text: str):
+        """Handle voice command from hotkey"""
+        print(f"[Main] Voice command received: {text}")
+        self.chat_interface.add_user_message(text)
+        self.handle_user_message(text)
     
     def connect_signals(self):
         """Connect all signal handlers"""
@@ -314,6 +342,54 @@ class ChatGPTPlusClone(QMainWindow):
         """Open model settings dialog"""
         self.statusBar().showMessage("Model settings to be implemented")
     
+    def open_settings(self):
+        """Open settings dialog"""
+        try:
+            dialog = SettingsDialog(parent=self)
+            dialog.voice_hotkey_toggled.connect(self.on_voice_hotkey_toggled)
+            dialog.settings_changed.connect(self.on_settings_changed)
+            dialog.exec()
+        except Exception as e:
+            self.statusBar().showMessage(f"Error opening settings: {e}")
+    
+    def open_plugin_test(self):
+        """Open plugin test dialog"""
+        try:
+            dialog = PluginTestDialog(self.plugins, parent=self)
+            dialog.exec()
+        except Exception as e:
+            self.statusBar().showMessage(f"Error opening plugin test: {e}")
+    
+    def on_voice_hotkey_toggled(self, enabled: bool):
+        """Handle voice hotkey toggle from settings"""
+        print(f"[Main] Voice hotkey toggled: {enabled}")
+        
+        # Update config
+        voice_settings = self.config.get_voice_settings()
+        voice_settings['enabled'] = enabled
+        self.config.set_voice_settings(voice_settings)
+        
+        # Start or stop voice listener
+        if enabled:
+            self.start_voice_listener()
+        else:
+            self.stop_voice_listener()
+    
+    def on_settings_changed(self, settings: dict):
+        """Handle settings changes"""
+        print(f"[Main] Settings changed: {settings}")
+        self.statusBar().showMessage("Settings updated")
+    
+    def reload_plugins(self):
+        """Reload plugins when changes detected"""
+        try:
+            self.plugins = self.plugin_loader.load_plugins()
+            self.statusBar().showMessage(f"Plugins reloaded: {len(self.plugins)} loaded")
+            print(f"[Main] Plugins reloaded: {len(self.plugins)} plugins")
+        except Exception as e:
+            self.statusBar().showMessage(f"Error reloading plugins: {e}")
+            print(f"[Main] Error reloading plugins: {e}")
+    
     def open_voice_settings(self):
         """Open voice settings dialog"""
         self.statusBar().showMessage("Voice settings to be implemented")
@@ -330,6 +406,27 @@ class ChatGPTPlusClone(QMainWindow):
     def load_preferences(self):
         """Load user preferences"""
         pass  # To be implemented
+    
+    def closeEvent(self, event):
+        """Handle application close event"""
+        try:
+            # Stop voice listener
+            if hasattr(self, 'voice_listener') and self.voice_listener:
+                self.stop_voice_listener()
+            
+            # Stop plugin watcher
+            if hasattr(self, 'plugin_loader'):
+                self.plugin_loader.stop_watching()
+            
+            # Save any pending data
+            self.save_chat()
+            
+            print("[Main] Application closing - cleanup completed")
+            event.accept()
+            
+        except Exception as e:
+            print(f"[Main] Error during cleanup: {e}")
+            event.accept()
     
     def handle_file_selection(self, file_path: str):
         """Handle file selection from file browser"""

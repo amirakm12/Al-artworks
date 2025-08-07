@@ -19,6 +19,7 @@ class SettingsDialog(QDialog):
     
     # Signals
     settings_changed = pyqtSignal(dict)
+    voice_hotkey_toggled = pyqtSignal(bool)  # Signal for live voice hotkey toggle
     
     def __init__(self, current_settings: Dict[str, Any] = None, parent=None):
         super().__init__(parent)
@@ -122,6 +123,7 @@ class SettingsDialog(QDialog):
         
         self.voice_enabled = QCheckBox("Enable voice hotkey (Ctrl+Shift+V)")
         self.voice_enabled.setChecked(True)
+        self.voice_enabled.stateChanged.connect(self.on_voice_hotkey_toggled)
         voice_layout.addRow("Voice Hotkey:", self.voice_enabled)
         
         self.voice_hotkey = QLineEdit("ctrl+shift+v")
@@ -493,6 +495,12 @@ class SettingsDialog(QDialog):
                 json.dump(settings, f, indent=2)
         except Exception as e:
             print(f"Error saving settings: {e}")
+    
+    def on_voice_hotkey_toggled(self, state):
+        """Handle voice hotkey toggle and emit signal"""
+        enabled = state == Qt.CheckState.Checked
+        self.voice_hotkey_toggled.emit(enabled)
+        print(f"[Settings] Voice hotkey toggled: {enabled}")
     
     def update_plugin_status(self, status_text: str):
         """Update plugin status display"""
