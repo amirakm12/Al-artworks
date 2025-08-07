@@ -2,23 +2,24 @@ import torch
 import time
 import logging
 import psutil
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 
 log = logging.getLogger("GPUProfiler")
 
 @dataclass
-class GPUInfo:
-    name: str
-    memory_total: int  # MB
-    memory_available: int  # MB
-    compute_capability: Optional[str] = None
-    is_available: bool = True
+class BenchmarkResult:
+    operation: str
+    device: str
+    duration: float
+    iterations: int
+    throughput: float
+    memory_used: float
 
 class GPUProfiler:
     def __init__(self):
         self.device = self._get_best_device()
-        self.benchmark_results = {}
+        self.benchmark_results: List[BenchmarkResult] = []
         
     def _get_best_device(self) -> torch.device:
         """Get the best available device for AI workloads"""
@@ -28,280 +29,314 @@ class GPUProfiler:
             return torch.device("mps")
         else:
             return torch.device("cpu")
-    
-    def get_device_info(self) -> GPUInfo:
-        """Get comprehensive device information"""
-        if not torch.cuda.is_available():
-            return GPUInfo(
-                name="CPU",
-                memory_total=psutil.virtual_memory().total // (1024**2),
-                memory_available=psutil.virtual_memory().available // (1024**2),
-                is_available=True
-            )
-        
-        device = self.device
-        if device.type == "cuda":
-            props = torch.cuda.get_device_properties(device)
-            memory_allocated = torch.cuda.memory_allocated(device) // (1024**2)
-            memory_reserved = torch.cuda.memory_reserved(device) // (1024**2)
-            
-            return GPUInfo(
-                name=props.name,
-                memory_total=props.total_memory // (1024**2),
-                memory_available=props.total_memory // (1024**2) - memory_reserved,
-                compute_capability=f"{props.major}.{props.minor}",
-                is_available=True
-            )
-        elif device.type == "mps":
-            return GPUInfo(
-                name="Apple MPS",
-                memory_total=0,  # MPS doesn't expose memory info easily
-                memory_available=0,
-                is_available=True
-            )
-        
-        return GPUInfo(
-            name="CPU",
-            memory_total=psutil.virtual_memory().total // (1024**2),
-            memory_available=psutil.virtual_memory().available // (1024**2),
-            is_available=True
-        )
-
-    def simple_gpu_benchmark(self, device: Optional[torch.device] = None, 
-                           duration: float = 5.0, matrix_size: int = 2048) -> Tuple[int, float]:
-        """
-        Run a simple GPU benchmark with matrix multiplication
-        
-        Args:
-            device: torch device to benchmark (defaults to best available)
-            duration: benchmark duration in seconds
-            matrix_size: size of matrices for multiplication
-            
-        Returns:
-            Tuple of (iterations, elapsed_time)
-        """
-        device = device or self.device
-        log.info(f"Running GPU benchmark on {device} for {duration}s")
-        
-        start_time = time.time()
-        iterations = 0
-        
-        try:
-            while (time.time() - start_time) < duration:
-                # Create large tensors for matrix multiplication
-                a = torch.randn(matrix_size, matrix_size, device=device)
-                b = torch.randn(matrix_size, matrix_size, device=device)
-                
-                # Perform matrix multiplication
-                c = torch.mm(a, b)
-                
-                # Synchronize if using CUDA
-                if device.type == "cuda":
-                    torch.cuda.synchronize()
-                
-                iterations += 1
-                
-                # Small delay to prevent overwhelming the system
-                time.sleep(0.001)
-                
-        except Exception as e:
-            log.error(f"Benchmark error: {e}")
-            return 0, 0
-        
-        elapsed = time.time() - start_time
-        ops_per_second = iterations / elapsed if elapsed > 0 else 0
-        
-        log.info(f"Benchmark finished: {iterations} iterations in {elapsed:.2f} seconds")
-        log.info(f"Operations per second: {ops_per_second:.2f}")
-        
-        # Store results
-        self.benchmark_results[f"matrix_mult_{matrix_size}"] = {
-            "iterations": iterations,
-            "elapsed_time": elapsed,
-            "ops_per_second": ops_per_second,
-            "device": str(device)
-        }
-        
-        return iterations, elapsed
-
-    def profile_gpu_memory(self) -> Dict[str, Any]:
-        """Profile current GPU memory usage"""
-        if not torch.cuda.is_available():
-            log.warning("CUDA device not available for memory profiling")
-            return {
-                "cuda_available": False,
-                "memory_allocated_mb": 0,
-                "memory_reserved_mb": 0,
-                "memory_total_mb": 0
-            }
-        
-        log.info("Profiling GPU memory usage")
-        
-        memory_info = {
-            "cuda_available": True,
-            "memory_allocated_mb": torch.cuda.memory_allocated() / (1024**2),
-            "memory_reserved_mb": torch.cuda.memory_reserved() / (1024**2),
-            "memory_total_mb": torch.cuda.get_device_properties(0).total_memory / (1024**2)
-        }
-        
-        log.info(f"GPU Memory - Allocated: {memory_info['memory_allocated_mb']:.2f} MB")
-        log.info(f"GPU Memory - Reserved: {memory_info['memory_reserved_mb']:.2f} MB")
-        log.info(f"GPU Memory - Total: {memory_info['memory_total_mb']:.2f} MB")
-        
-        return memory_info
 
     def print_device_info(self):
         """Print comprehensive device information"""
-        device_info = self.get_device_info()
-        
-        log.info("=== Device Information ===")
-        log.info(f"Device: {self.device}")
-        log.info(f"Device Name: {device_info.name}")
-        log.info(f"Memory Total: {device_info.memory_total} MB")
-        log.info(f"Memory Available: {device_info.memory_available} MB")
+        log.info(f"PyTorch version: {torch.__version__}")
+        log.info(f"CUDA available: {torch.cuda.is_available()}")
+        log.info(f"Current device: {self.device}")
         
         if torch.cuda.is_available():
-            log.info(f"CUDA Version: {torch.version.cuda}")
-            log.info(f"GPU Count: {torch.cuda.device_count()}")
-            
+            log.info(f"Device count: {torch.cuda.device_count()}")
             for i in range(torch.cuda.device_count()):
                 props = torch.cuda.get_device_properties(i)
-                log.info(f"GPU {i}: {props.name}")
+                log.info(f"Device {i}: {props.name}")
                 log.info(f"  Compute Capability: {props.major}.{props.minor}")
                 log.info(f"  Total Memory: {props.total_memory / (1024**3):.1f} GB")
-        else:
-            log.info("CUDA not available")
-            
-        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-            log.info("Apple MPS (Metal) available")
-        else:
-            log.info("Apple MPS not available")
-
-    def clear_gpu_cache(self):
-        """Clear GPU memory cache"""
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            log.info("GPU cache cleared")
-        else:
-            log.info("No GPU cache to clear")
-
-    def get_memory_usage(self) -> Dict[str, Any]:
-        """Get current memory usage for CPU and GPU"""
-        cpu_memory = psutil.virtual_memory()
-        gpu_memory = {}
+                log.info(f"  Memory Allocated: {torch.cuda.memory_allocated(i)/1024**2:.2f} MB")
+                log.info(f"  Memory Cached: {torch.cuda.memory_reserved(i)/1024**2:.2f} MB")
         
-        if torch.cuda.is_available():
-            device = self.device
-            if device.type == "cuda":
-                gpu_memory = {
-                    "allocated_mb": torch.cuda.memory_allocated(device) / (1024**2),
-                    "reserved_mb": torch.cuda.memory_reserved(device) / (1024**2),
-                    "total_mb": torch.cuda.get_device_properties(device).total_memory / (1024**2)
-                }
-        
-        return {
-            "cpu": {
-                "total_mb": cpu_memory.total / (1024**2),
-                "available_mb": cpu_memory.available / (1024**2),
-                "percent": cpu_memory.percent
-            },
-            "gpu": gpu_memory
+        # CPU info
+        cpu_info = {
+            "cpu_count": psutil.cpu_count(),
+            "cpu_percent": psutil.cpu_percent(),
+            "memory_total": psutil.virtual_memory().total / (1024**3),
+            "memory_available": psutil.virtual_memory().available / (1024**3),
+            "memory_percent": psutil.virtual_memory().percent
         }
-
-    def benchmark_model_inference(self, model, input_tensor, num_runs: int = 10) -> Dict[str, Any]:
-        """
-        Benchmark model inference performance
         
-        Args:
-            model: PyTorch model to benchmark
-            input_tensor: Input tensor for the model
-            num_runs: Number of inference runs to average
-            
-        Returns:
-            Dictionary with benchmark results
-        """
+        log.info(f"CPU Cores: {cpu_info['cpu_count']}")
+        log.info(f"CPU Usage: {cpu_info['cpu_percent']:.1f}%")
+        log.info(f"RAM Total: {cpu_info['memory_total']:.1f} GB")
+        log.info(f"RAM Available: {cpu_info['memory_available']:.1f} GB")
+        log.info(f"RAM Usage: {cpu_info['memory_percent']:.1f}%")
+
+    def simple_gpu_benchmark(self, matrix_size: int = 1024, iterations: int = 100) -> BenchmarkResult:
+        """Run a simple GPU benchmark with matrix multiplication"""
+        if not torch.cuda.is_available():
+            log.warning("CUDA not available, running CPU benchmark instead.")
+            device = torch.device("cpu")
+        else:
+            device = self.device
+        
+        log.info(f"Running matrix multiplication benchmark on {device}")
+        log.info(f"Matrix size: {matrix_size}x{matrix_size}, Iterations: {iterations}")
+        
+        # Create test tensors
+        x = torch.randn((matrix_size, matrix_size), device=device)
+        
+        # Warmup
+        for _ in range(10):
+            _ = x @ x
+        
+        # Synchronize if using CUDA
+        if device.type == "cuda":
+            torch.cuda.synchronize()
+        
+        # Benchmark
+        start_time = time.time()
+        for _ in range(iterations):
+            y = x @ x
+            if device.type == "cuda":
+                torch.cuda.synchronize()
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        throughput = iterations / duration
+        
+        # Memory usage
+        if device.type == "cuda":
+            memory_used = torch.cuda.memory_allocated(device) / (1024**2)
+        else:
+            memory_used = 0
+        
+        result = BenchmarkResult(
+            operation="matrix_multiplication",
+            device=str(device),
+            duration=duration,
+            iterations=iterations,
+            throughput=throughput,
+            memory_used=memory_used
+        )
+        
+        self.benchmark_results.append(result)
+        
+        log.info(f"Benchmark completed:")
+        log.info(f"  Duration: {duration:.4f} seconds")
+        log.info(f"  Throughput: {throughput:.2f} ops/sec")
+        log.info(f"  Memory Used: {memory_used:.2f} MB")
+        
+        return result
+
+    def model_inference_benchmark(self, model, input_tensor, num_runs: int = 10) -> BenchmarkResult:
+        """Benchmark model inference performance"""
         device = self.device
         model = model.to(device)
         input_tensor = input_tensor.to(device)
         
         log.info(f"Benchmarking model inference on {device}")
         
-        # Warmup run
+        # Warmup
         with torch.no_grad():
             _ = model(input_tensor)
         
         if device.type == "cuda":
             torch.cuda.synchronize()
         
-        # Benchmark runs
-        times = []
-        for i in range(num_runs):
+        # Benchmark
+        start_time = time.time()
+        with torch.no_grad():
+            for _ in range(num_runs):
+                _ = model(input_tensor)
+                if device.type == "cuda":
+                    torch.cuda.synchronize()
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        throughput = num_runs / duration
+        
+        # Memory usage
+        if device.type == "cuda":
+            memory_used = torch.cuda.memory_allocated(device) / (1024**2)
+        else:
+            memory_used = 0
+        
+        result = BenchmarkResult(
+            operation="model_inference",
+            device=str(device),
+            duration=duration,
+            iterations=num_runs,
+            throughput=throughput,
+            memory_used=memory_used
+        )
+        
+        self.benchmark_results.append(result)
+        
+        log.info(f"Model inference benchmark completed:")
+        log.info(f"  Duration: {duration:.4f} seconds")
+        log.info(f"  Throughput: {throughput:.2f} inferences/sec")
+        log.info(f"  Memory Used: {memory_used:.2f} MB")
+        
+        return result
+
+    def memory_benchmark(self, tensor_sizes: List[int] = [1024, 2048, 4096]) -> List[BenchmarkResult]:
+        """Benchmark memory allocation and deallocation"""
+        if not torch.cuda.is_available():
+            log.warning("CUDA not available, skipping memory benchmark.")
+            return []
+        
+        results = []
+        device = self.device
+        
+        for size in tensor_sizes:
+            log.info(f"Testing memory allocation for {size}x{size} tensor")
+            
+            # Clear cache
+            torch.cuda.empty_cache()
+            initial_memory = torch.cuda.memory_allocated(device)
+            
             start_time = time.time()
             
-            with torch.no_grad():
-                _ = model(input_tensor)
+            # Allocate tensor
+            tensor = torch.randn((size, size), device=device)
+            torch.cuda.synchronize()
             
-            if device.type == "cuda":
-                torch.cuda.synchronize()
+            allocation_time = time.time() - start_time
+            peak_memory = torch.cuda.memory_allocated(device)
             
-            elapsed = time.time() - start_time
-            times.append(elapsed)
-        
-        avg_time = sum(times) / len(times)
-        min_time = min(times)
-        max_time = max(times)
-        
-        results = {
-            "device": str(device),
-            "num_runs": num_runs,
-            "avg_time_ms": avg_time * 1000,
-            "min_time_ms": min_time * 1000,
-            "max_time_ms": max_time * 1000,
-            "throughput_fps": 1.0 / avg_time if avg_time > 0 else 0
-        }
-        
-        log.info(f"Model inference benchmark results:")
-        log.info(f"  Average time: {results['avg_time_ms']:.2f} ms")
-        log.info(f"  Throughput: {results['throughput_fps']:.2f} FPS")
+            # Deallocate
+            del tensor
+            torch.cuda.empty_cache()
+            
+            deallocation_time = time.time() - start_time - allocation_time
+            final_memory = torch.cuda.memory_allocated(device)
+            
+            result = BenchmarkResult(
+                operation=f"memory_allocation_{size}x{size}",
+                device=str(device),
+                duration=allocation_time,
+                iterations=1,
+                throughput=1.0 / allocation_time if allocation_time > 0 else 0,
+                memory_used=peak_memory / (1024**2)
+            )
+            
+            results.append(result)
+            self.benchmark_results.append(result)
+            
+            log.info(f"  Allocation time: {allocation_time:.4f}s")
+            log.info(f"  Peak memory: {peak_memory / (1024**2):.2f} MB")
+            log.info(f"  Memory overhead: {(peak_memory - initial_memory) / (1024**2):.2f} MB")
         
         return results
 
-    def get_benchmark_results(self) -> Dict[str, Any]:
-        """Get all benchmark results"""
-        return self.benchmark_results
+    def mixed_precision_benchmark(self, model, input_tensor, num_runs: int = 10) -> Dict[str, BenchmarkResult]:
+        """Benchmark different precision modes"""
+        device = self.device
+        model = model.to(device)
+        input_tensor = input_tensor.to(device)
+        
+        results = {}
+        
+        # FP32 benchmark
+        model_fp32 = model.float()
+        log.info("Benchmarking FP32 precision")
+        results["fp32"] = self.model_inference_benchmark(model_fp32, input_tensor, num_runs)
+        
+        # FP16 benchmark (if supported)
+        if device.type == "cuda":
+            try:
+                model_fp16 = model.half()
+                input_fp16 = input_tensor.half()
+                log.info("Benchmarking FP16 precision")
+                results["fp16"] = self.model_inference_benchmark(model_fp16, input_fp16, num_runs)
+            except Exception as e:
+                log.warning(f"FP16 benchmark failed: {e}")
+        
+        # BF16 benchmark (if supported)
+        if device.type == "cuda" and hasattr(torch, "bfloat16"):
+            try:
+                model_bf16 = model.bfloat16()
+                input_bf16 = input_tensor.bfloat16()
+                log.info("Benchmarking BF16 precision")
+                results["bf16"] = self.model_inference_benchmark(model_bf16, input_bf16, num_runs)
+            except Exception as e:
+                log.warning(f"BF16 benchmark failed: {e}")
+        
+        return results
 
-    def print_summary(self):
-        """Print a comprehensive system summary"""
-        log.info("=== GPU Profiler Summary ===")
-        self.print_device_info()
+    def get_memory_stats(self) -> Dict[str, Any]:
+        """Get current memory statistics"""
+        stats = {
+            "cpu": {
+                "memory_total": psutil.virtual_memory().total / (1024**3),
+                "memory_available": psutil.virtual_memory().available / (1024**3),
+                "memory_percent": psutil.virtual_memory().percent,
+                "cpu_percent": psutil.cpu_percent()
+            }
+        }
         
-        memory_usage = self.get_memory_usage()
-        log.info(f"CPU Memory Usage: {memory_usage['cpu']['percent']:.1f}%")
+        if torch.cuda.is_available():
+            device = self.device
+            stats["gpu"] = {
+                "device_name": torch.cuda.get_device_name(device),
+                "memory_allocated": torch.cuda.memory_allocated(device) / (1024**2),
+                "memory_reserved": torch.cuda.memory_reserved(device) / (1024**2),
+                "memory_total": torch.cuda.get_device_properties(device).total_memory / (1024**2),
+                "memory_percent": (torch.cuda.memory_allocated(device) / torch.cuda.get_device_properties(device).total_memory) * 100
+            }
         
-        if memory_usage['gpu']:
-            gpu = memory_usage['gpu']
-            log.info(f"GPU Memory Usage: {gpu['allocated_mb']:.1f} MB allocated")
+        return stats
+
+    def clear_gpu_cache(self):
+        """Clear GPU memory cache"""
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            log.info("GPU cache cleared")
+
+    def print_benchmark_summary(self):
+        """Print summary of all benchmark results"""
+        if not self.benchmark_results:
+            log.info("No benchmark results available")
+            return
         
-        if self.benchmark_results:
-            log.info("=== Benchmark Results ===")
-            for name, results in self.benchmark_results.items():
-                log.info(f"{name}: {results['ops_per_second']:.2f} ops/sec")
+        log.info("=== Benchmark Summary ===")
+        for result in self.benchmark_results:
+            log.info(f"{result.operation} on {result.device}:")
+            log.info(f"  Duration: {result.duration:.4f}s")
+            log.info(f"  Throughput: {result.throughput:.2f} ops/sec")
+            log.info(f"  Memory: {result.memory_used:.2f} MB")
+            log.info("")
+
+    def export_benchmark_results(self, filename: str = "benchmark_results.json"):
+        """Export benchmark results to JSON file"""
+        import json
+        
+        results_data = []
+        for result in self.benchmark_results:
+            results_data.append({
+                "operation": result.operation,
+                "device": result.device,
+                "duration": result.duration,
+                "iterations": result.iterations,
+                "throughput": result.throughput,
+                "memory_used": result.memory_used
+            })
+        
+        with open(filename, 'w') as f:
+            json.dump(results_data, f, indent=2)
+        
+        log.info(f"Benchmark results exported to {filename}")
 
 # Utility functions for easy access
-def simple_gpu_benchmark(device=None, duration=5.0):
-    """Simple GPU benchmark function"""
-    profiler = GPUProfiler()
-    return profiler.simple_gpu_benchmark(device, duration)
-
-def profile_gpu_memory():
-    """Profile GPU memory usage"""
-    profiler = GPUProfiler()
-    return profiler.profile_gpu_memory()
-
 def print_device_info():
     """Print device information"""
     profiler = GPUProfiler()
     profiler.print_device_info()
+
+def simple_gpu_benchmark():
+    """Run simple GPU benchmark"""
+    profiler = GPUProfiler()
+    return profiler.simple_gpu_benchmark()
+
+def get_memory_stats():
+    """Get current memory statistics"""
+    profiler = GPUProfiler()
+    return profiler.get_memory_stats()
+
+def clear_gpu_cache():
+    """Clear GPU cache"""
+    profiler = GPUProfiler()
+    profiler.clear_gpu_cache()
 
 # Example usage
 if __name__ == "__main__":
@@ -312,11 +347,15 @@ if __name__ == "__main__":
     # Print device information
     profiler.print_device_info()
     
-    # Profile memory
-    profiler.profile_gpu_memory()
+    # Run benchmarks
+    profiler.simple_gpu_benchmark()
     
-    # Run benchmark
-    profiler.simple_gpu_benchmark(duration=3.0)
+    # Print memory stats
+    memory_stats = profiler.get_memory_stats()
+    log.info(f"Memory stats: {memory_stats}")
     
     # Print summary
-    profiler.print_summary()
+    profiler.print_benchmark_summary()
+    
+    # Export results
+    profiler.export_benchmark_results()
