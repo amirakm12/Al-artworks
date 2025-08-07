@@ -1,376 +1,316 @@
-# 🚀 ChatGPT+ Clone - Advanced AI Assistant
+# ChatGPT+ Clone
 
-A comprehensive Windows desktop application that replicates ChatGPT Plus functionality with local AI capabilities, voice interaction, code execution, image generation, and more.
+A fully-featured desktop AI assistant with GPU-optimized AI models, voice interaction, image generation, and extensible plugin system.
 
-## ✨ Features
+## 🚀 Features
 
-### 🤖 **AI Chat & Language Models**
-- **Local LLM Support**: dolphin-mixtral:8x22b, LLaMA2, Mistral via Ollama
-- **Conversation Memory**: Persistent chat history with vector storage
-- **Context Awareness**: Intelligent conversation context management
-- **Multi-Model Support**: Switch between different AI models
+### Core AI Capabilities
+- **GPU-Aware AI Models**: Automatic device detection (CUDA > MPS > CPU)
+- **Voice Recognition**: Real-time Whisper ASR with async processing
+- **Text-to-Speech**: GPU-accelerated TTS synthesis
+- **Local LLM**: Support for GPT-2, Dolphin-Mixtral, and other models
+- **Image Generation**: Stable Diffusion with ControlNet editing
+- **Code Execution**: Sandboxed Python code interpreter
 
-### 🎤 **Voice Interaction**
-- **Speech-to-Text**: Whisper-powered voice recognition
-- **Text-to-Speech**: Natural voice synthesis
-- **Global Hotkey**: Ctrl+Shift+V for instant voice activation
-- **Voice Activity Detection**: Automatic silence detection
+### Advanced Features
+- **Plugin System**: Hot-reloadable plugins with sandbox security
+- **AR Overlay**: Holographic UI effects (experimental)
+- **Voice Hotkeys**: Global hotkey activation (Ctrl+Shift+V)
+- **Performance Monitoring**: Real-time GPU/CPU/RAM stats
+- **Auto-Updater**: GitHub release-based updates
+- **Cross-Platform**: Windows, Linux, macOS support
 
-### 💻 **Code Interpreter**
-- **Python Execution**: Sandboxed code execution environment
-- **File Processing**: Upload and analyze code files
-- **Real-time Output**: Live code execution feedback
-- **Virtual Environment**: Isolated Python execution
+## 🏗️ Architecture
 
-### 🌐 **Web Browser Agent**
-- **Real-time Search**: DuckDuckGo and Brave Search integration
-- **Web Scraping**: Intelligent content extraction
-- **Browser Automation**: Playwright-powered web interaction
-- **Search History**: Persistent search results
+```
+chatgpt-plus-clone/
+├── main.py                 # Application entry point
+├── device_utils.py         # GPU detection & optimization
+├── voice_async.py          # Async voice processing
+├── plugin_loader.py        # Plugin system & lifecycle
+├── voice_hotkey.py         # Global hotkey management
+├── voice_agent.py          # Speech recognition (Whisper)
+├── voice_tts.py           # Text-to-speech synthesis
+├── llm/model_loader.py     # Language model management
+├── image_tools/            # Image generation & editing
+│   ├── image_generator.py
+│   └── controlnet_editor.py
+├── overlay_ar.py           # AR/3D visual effects
+├── settings_dialog.py      # Configuration UI
+├── plugin_test_dialog.py   # Plugin debugging interface
+├── build.py               # Cross-platform build system
+├── performance_monitor.py  # System monitoring
+├── config.json            # Application configuration
+├── requirements.txt       # Dependencies
+├── plugins/               # Plugin directory
+├── tests/                 # Test suite
+└── docs/                  # Documentation
+```
 
-### 🎨 **Image Generation & Editing**
-- **Stable Diffusion**: Local image generation
-- **DALL-E Style**: Advanced prompt-based image creation
-- **Image Editing**: ControlNet-powered image manipulation
-- **Batch Processing**: Multiple image generation
+## 🚀 Quick Start
 
-### 📁 **File Management**
-- **Drag & Drop**: Easy file upload interface
-- **File Browser**: Integrated file system navigation
-- **File Processing**: Automatic file type detection
-- **Workspace Management**: Organized file storage
+### Installation
 
-### 🔌 **Plugin System**
-- **Dynamic Loading**: Hot-reloadable plugin architecture
-- **Sandbox Security**: Restricted execution environment
-- **Plugin Discovery**: Automatic plugin detection
-- **Custom Tools**: Extensible functionality
-
-### 🧠 **Memory System**
-- **Vector Storage**: ChromaDB-powered semantic search
-- **Conversation History**: Persistent chat storage
-- **User Preferences**: Customizable settings
-- **Context Memory**: Intelligent context management
-
-### 🖥️ **VS Code Integration**
-- **Monaco Editor**: Embedded code editor
-- **File Linking**: Direct VS Code integration
-- **Code Execution**: Inline code running
-- **Workspace Sync**: Real-time file synchronization
-
-### 🎭 **AR/3D Overlay**
-- **Holographic UI**: Futuristic visual interface
-- **Neural Visualization**: Animated neural network display
-- **System Status**: Real-time system monitoring
-- **Glass HUD**: Transparent overlay effects
-
-## 🛠️ Installation
-
-### Quick Start (Windows)
-
-1. **Download and Extract**
-   ```powershell
-   # Clone or download the project
-   git clone https://github.com/your-repo/chatgpt-plus-clone.git
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/chatgpt-plus-clone.git
    cd chatgpt-plus-clone
    ```
 
-2. **Run Installation Script**
-   ```powershell
-   # Run as Administrator for best results
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-   .\install.ps1
-   ```
-
-3. **Launch Application**
-   ```powershell
-   # Start the application
-   .\start.ps1
-   ```
-
-### Manual Installation
-
-1. **Prerequisites**
-   - Python 3.10+ (automatically installed by script)
-   - Windows 10/11 (64-bit)
-   - 8GB RAM minimum (16GB recommended)
-   - 10GB free disk space
-
-2. **Install Dependencies**
+2. **Install dependencies**:
    ```bash
-   # Create virtual environment
-   python -m venv .venv
-   .venv\Scripts\activate
-   
-   # Install dependencies
    pip install -r requirements.txt
    ```
 
-3. **Install Ollama**
-   ```bash
-   # Download and install Ollama
-   # https://ollama.ai/download
-   
-   # Pull AI models
-   ollama pull dolphin-mixtral:8x22b
-   ollama pull llama2:13b
-   ollama pull mistral:7b
-   ```
-
-4. **Install Playwright Browsers**
-   ```bash
-   playwright install
-   ```
-
-## 🚀 Usage
-
-### Basic Operation
-
-1. **Launch Application**
-   - Run `start.ps1` or double-click `ChatGPTPlusClone.exe`
-   - The application will start with a modern Qt6 interface
-
-2. **Voice Interaction**
-   - Press `Ctrl+Shift+V` to activate voice input
-   - Speak your message clearly
-   - The AI will respond with voice synthesis
-
-3. **Chat Interface**
-   - Type messages in the chat area
-   - Use the tools panel for different capabilities
-   - Drag and drop files for processing
-
-### Advanced Features
-
-#### Code Interpreter
-```python
-# Example: Ask the AI to run Python code
-"Can you create a function that calculates fibonacci numbers?"
-```
-
-#### Image Generation
-```
-"Generate an image of a futuristic city with flying cars"
-```
-
-#### Web Search
-```
-"Search for the latest news about artificial intelligence"
-```
-
-#### File Processing
-- Drag and drop Python files for analysis
-- Upload images for editing
-- Process text files for summarization
-
-### Plugin Development
-
-1. **Create Plugin Directory**
-   ```bash
-   mkdir plugins/my_plugin
-   ```
-
-2. **Create Manifest**
-   ```json
-   {
-     "name": "my_plugin",
-     "version": "1.0.0",
-     "description": "My custom plugin",
-     "author": "Your Name",
-     "dependencies": [],
-     "hooks": ["message_received"],
-     "permissions": ["read_files"]
-   }
-   ```
-
-3. **Create Plugin Code**
-   ```python
-   def register(plugin_manager):
-       plugin_manager.register_hook("message_received", handle_message)
-   
-   def handle_message(message):
-       return f"Plugin processed: {message}"
-   ```
-
-## 🔧 Configuration
-
-### Application Settings
-
-Edit `config.json` to customize the application:
-
-```json
-{
-  "app_name": "ChatGPT+ Clone",
-  "version": "1.0.0",
-  "default_model": "dolphin-mixtral:8x22b",
-  "voice_hotkey": "ctrl+shift+v",
-  "max_memory_size": "1GB",
-  "enable_plugins": true,
-  "enable_voice": true,
-  "enable_image_generation": true,
-  "enable_code_execution": true,
-  "enable_web_search": true,
-  "log_level": "INFO"
-}
-```
-
-### Model Configuration
-
-The application supports multiple AI models:
-
-- **dolphin-mixtral:8x22b**: Best performance, requires more RAM
-- **llama2:13b**: Good balance of performance and memory
-- **mistral:7b**: Fastest, works on lower-end systems
-
-### Voice Settings
-
-Configure voice processing in the settings:
-
-- **Sample Rate**: 16000 Hz (default)
-- **Silence Threshold**: 0.01 (adjust for microphone sensitivity)
-- **Max Recording Time**: 30 seconds
-- **Voice Activity Detection**: Automatic silence detection
-
-## 🏗️ Building from Source
-
-### Development Setup
-
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/your-repo/chatgpt-plus-clone.git
-   cd chatgpt-plus-clone
-   ```
-
-2. **Install Development Dependencies**
-   ```bash
-   pip install -r requirements-dev.txt
-   ```
-
-3. **Run in Development Mode**
+3. **Run the application**:
    ```bash
    python main.py
    ```
 
-### Building Executable
+### Windows Installation (Recommended)
+```powershell
+# Run as Administrator
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\install.ps1
+```
 
-1. **Install PyInstaller**
+## 🎤 Voice Commands
+
+- **Activation**: Press `Ctrl+Shift+V` to start voice input
+- **Speaking**: Wait for confirmation beep, then speak clearly
+- **Commands**: Try these voice commands:
+  - "What's the weather today?"
+  - "Write a Python function to calculate fibonacci"
+  - "Generate an image of a sunset"
+  - "Search for the latest news about AI"
+
+## 🧩 Plugin System
+
+### Using Plugins
+Plugins automatically extend functionality:
+- Add new voice commands
+- Integrate external services
+- Provide specialized tools
+- Enhance the user interface
+
+### Creating Plugins
+```python
+# plugins/my_plugin.py
+class MyPlugin:
+    def on_load(self):
+        print("[Plugin] My plugin loaded")
+        return True
+    
+    def on_unload(self):
+        print("[Plugin] My plugin unloaded")
+        return True
+    
+    def handle_voice_command(self, text, context):
+        if "my command" in text.lower():
+            return "Plugin response!"
+        return None
+```
+
+## ⚙️ Configuration
+
+### Settings Dialog
+Access comprehensive settings through the UI:
+- **Voice Settings**: Hotkey, sample rate, TTS options
+- **AI Models**: Whisper, LLM, TTS, image generation models
+- **Performance**: GPU acceleration, memory management
+- **Plugins**: Enable/disable, test mode, sandboxing
+- **Advanced**: AR overlay, security, debugging
+
+### Configuration File
+```json
+{
+  "voice_hotkey_enabled": true,
+  "ar_overlay_enabled": true,
+  "plugins_enabled": true,
+  "gpu_acceleration": true,
+  "voice_settings": {
+    "hotkey": "ctrl+shift+v",
+    "sample_rate": 16000,
+    "silence_threshold": 0.01
+  },
+  "ai_models": {
+    "whisper_model": "base",
+    "llm_model": "gpt2",
+    "tts_model": "tts_models/en/ljspeech/tacotron2-DDC",
+    "image_model": "runwayml/stable-diffusion-v1-5"
+  }
+}
+```
+
+## 🔧 Development
+
+### Building from Source
+
+1. **Install development dependencies**:
    ```bash
-   pip install pyinstaller
+   pip install -r requirements.txt
+   pip install pytest pyinstaller
    ```
 
-2. **Build Executable**
+2. **Run tests**:
    ```bash
-   .\build.bat
+   pytest tests/
    ```
 
-3. **Distribution Package**
-   - Executable will be created in `dist/ChatGPTPlusClone/`
-   - Run `install.bat` in the distribution folder
-   - Launch `ChatGPTPlusClone.exe`
+3. **Build executable**:
+   ```bash
+   python build.py
+   ```
 
-## 📁 Project Structure
+### Plugin Development
 
-```
-chatgpt-plus-clone/
-├── main.py                 # Main application entry point
-├── requirements.txt        # Complete dependencies
-├── requirements-*.txt      # Tiered dependency files
-├── install.ps1            # Windows installation script
-├── build.bat              # Build script for executable
-├── config.json            # Application configuration
-├── ui/                    # User interface components
-│   ├── chat_interface.py  # Chat UI
-│   ├── tools_panel.py     # Tools panel
-│   ├── file_browser.py    # File browser
-│   └── voice_panel.py     # Voice interface
-├── llm/                   # Language model integration
-│   └── agent_orchestrator.py
-├── tools/                 # AI tools and capabilities
-│   ├── code_executor.py   # Python code execution
-│   ├── web_browser.py     # Web search and scraping
-│   ├── image_editor.py    # Image generation/editing
-│   └── voice_agent.py     # Voice processing
-├── memory/                # Memory and storage system
-│   └── memory_manager.py  # Persistent memory management
-├── plugins/               # Plugin system
-│   └── sample_plugin/     # Example plugin
-├── workspace/             # User workspace
-├── vs_code_link/          # VS Code integration
-├── plugin_loader.py       # Plugin management system
-├── voice_hotkey.py        # Global voice hotkey
-└── overlay_ar.py          # AR/3D overlay system
+1. **Create plugin file** in `plugins/` directory
+2. **Implement required methods**:
+   - `on_load()`: Plugin initialization
+   - `on_unload()`: Plugin cleanup
+   - `handle_voice_command()`: Voice command processing
+3. **Test plugin** using the plugin test dialog
+4. **Enable hot-reload** for development
+
+### Testing Plugins
+```bash
+# Run plugin tests
+python -m pytest tests/test_plugin_loader.py -v
+
+# Use plugin test dialog
+python plugin_test_dialog.py
 ```
 
-## 🔌 Plugin API
+## 🎨 AI Models
 
-### Plugin Structure
+### GPU Optimization
+The application automatically detects and uses the best available device:
 
-```
-plugins/my_plugin/
-├── manifest.json          # Plugin metadata
-└── plugin.py             # Plugin code
-```
+- **CUDA GPU**: NVIDIA GPUs with CUDA support
+- **MPS**: Apple Silicon GPU (macOS)
+- **CPU**: Fallback for all platforms
 
-### Available Hooks
+### Supported Models
 
-- `message_received`: Called when user sends a message
-- `tool_executed`: Called when a tool is executed
-- `file_uploaded`: Called when a file is uploaded
-- `voice_activated`: Called when voice input is activated
+#### Speech Recognition (Whisper)
+- Models: `tiny`, `base`, `small`, `medium`, `large`
+- Automatic device selection
+- Real-time transcription
 
-### Plugin Permissions
+#### Language Models
+- **GPT-2**: Fast, lightweight
+- **Dolphin-Mixtral**: High-quality responses
+- **Custom models**: Hugging Face transformers
 
-- `read_files`: Access to file system
-- `execute_code`: Execute Python code
-- `web_access`: Access to web resources
-- `voice_access`: Access to voice features
+#### Text-to-Speech
+- **Tacotron2-DDC**: High-quality synthesis
+- **GPU acceleration**: Automatic optimization
+- **Multiple voices**: Male, female, fast variants
 
-## 🐛 Troubleshooting
+#### Image Generation
+- **Stable Diffusion**: High-quality image generation
+- **ControlNet**: Advanced image editing
+- **Multiple models**: SD 1.5, 2.1, custom models
+
+## 📊 Performance Monitoring
+
+### Real-time Stats
+- **GPU Usage**: Memory, utilization, temperature
+- **CPU Usage**: Overall and per-core
+- **Memory**: RAM usage and allocation
+- **Network**: Upload/download speeds
+
+### Performance Optimization
+- **Auto-cleanup**: Memory management
+- **GPU cache clearing**: Manual and automatic
+- **Model optimization**: Device-specific tuning
+- **Resource limits**: Configurable thresholds
+
+## 🔒 Security
+
+### Plugin Sandboxing
+- **Restricted execution**: Limited system access
+- **Permission system**: Granular access control
+- **Error isolation**: Plugin crashes don't affect main app
+- **Resource limits**: Memory and CPU constraints
+
+### Code Execution
+- **Sandboxed Python**: Restricted environment
+- **Timeout limits**: Configurable execution time
+- **File access**: Controlled file operations
+- **Network access**: Limited network permissions
+
+## 🚀 Advanced Features
+
+### AR Overlay
+- **Holographic effects**: Neural network visualizations
+- **Data flow animations**: Real-time processing display
+- **3D effects**: Depth and perspective rendering
+- **Performance**: Can be disabled on slower systems
+
+### Auto-Updater
+- **GitHub integration**: Release-based updates
+- **Automatic checks**: Background update detection
+- **Safe updates**: Verification and rollback
+- **Changelog**: Release notes and features
+
+### Cross-Platform Build
+- **Windows**: PyInstaller executable
+- **macOS**: App bundle creation
+- **Linux**: AppImage and tar.gz packages
+- **Dependencies**: Automatic bundling
+
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-1. **Voice Not Working**
-   - Check microphone permissions
-   - Ensure Whisper is installed: `pip install openai-whisper`
-   - Test microphone in Windows settings
+#### Voice Not Working
+1. **Check microphone**: Ensure device is connected and working
+2. **Permissions**: Allow microphone access in system settings
+3. **Hotkey conflict**: Verify `Ctrl+Shift+V` isn't used by other apps
+4. **Audio drivers**: Update if needed
 
-2. **Slow Performance**
-   - Close other applications
-   - Use smaller models (mistral:7b)
-   - Increase system RAM
+#### GPU Issues
+1. **CUDA installation**: Ensure CUDA toolkit is installed
+2. **Driver updates**: Update GPU drivers
+3. **Memory**: Check GPU memory usage
+4. **Fallback**: App will automatically use CPU if GPU fails
 
-3. **Model Errors**
-   - Ensure Ollama is running: `ollama serve`
-   - Check model installation: `ollama list`
-   - Pull models: `ollama pull dolphin-mixtral:8x22b`
+#### Plugin Errors
+1. **Plugin test mode**: Enable for detailed error messages
+2. **Dependencies**: Install required Python packages
+3. **Permissions**: Check plugin security settings
+4. **Logs**: Review plugin logs for specific errors
 
-4. **Build Errors**
-   - Ensure PyInstaller is installed
-   - Check Python version (3.10+)
-   - Run as administrator
+### System Requirements
+- **OS**: Windows 10/11, Linux, macOS
+- **Python**: 3.10 or higher
+- **RAM**: 8GB minimum (16GB recommended)
+- **Storage**: 5GB free space
+- **GPU**: Optional (CUDA-compatible for acceleration)
 
-### Logs and Debugging
+## 📚 Documentation
 
-- Application logs: `logs/` directory
-- Memory database: `memory/memory.db`
-- Configuration: `config.json`
-- Plugin logs: Check individual plugin directories
+- **[User Guide](docs/USER_GUIDE.md)**: Complete usage instructions
+- **[Developer Guide](docs/DEV_GUIDE.md)**: Plugin development and contribution
+- **[API Reference](docs/API.md)**: Technical documentation
+- **[Examples](docs/EXAMPLES.md)**: Code examples and tutorials
 
 ## 🤝 Contributing
 
+### Development Setup
 1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit changes**: `git commit -m 'Add amazing feature'`
-4. **Push to branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
+2. **Create feature branch**: `git checkout -b feature/amazing-feature`
+3. **Make changes**: Follow coding standards
+4. **Add tests**: Ensure new features are tested
+5. **Submit PR**: Include description and tests
 
-### Development Guidelines
-
-- Follow PEP 8 style guidelines
-- Add type hints to functions
-- Include docstrings for classes and methods
-- Write tests for new features
-- Update documentation for changes
+### Coding Standards
+- **Python**: Follow PEP 8 style guide
+- **Documentation**: Use docstrings for all functions
+- **Type Hints**: Include type annotations
+- **Error Handling**: Comprehensive error handling
+- **Testing**: Unit tests for new features
 
 ## 📄 License
 
@@ -378,21 +318,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Ollama**: Local LLM inference
-- **Whisper**: Speech recognition
-- **Stable Diffusion**: Image generation
+- **OpenAI**: Whisper speech recognition
+- **Hugging Face**: Transformers and diffusers
 - **PyQt6**: Modern UI framework
-- **ChromaDB**: Vector storage
-- **Playwright**: Web automation
+- **PyTorch**: GPU acceleration and AI models
+- **Community**: Contributors and testers
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-repo/chatgpt-plus-clone/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/chatgpt-plus-clone/discussions)
-- **Documentation**: [Wiki](https://github.com/your-repo/chatgpt-plus-clone/wiki)
+- **GitHub Issues**: Bug reports and feature requests
+- **Discord**: Community chat and support
+- **Documentation**: Comprehensive guides and examples
+- **Examples**: Sample plugins and configurations
 
 ---
 
-**Built with ❤️ using PyQt6, Ollama, and modern AI technologies**
+**Happy AI Assisting! 🤖**
 
-*This project is not affiliated with OpenAI or ChatGPT. It's an independent implementation for educational and personal use.*
+For the latest updates and community support, visit our GitHub repository.
