@@ -150,10 +150,23 @@ class AROverlay(QGraphicsView):
         # Animation timer
         self.animation_timer = QTimer()
         self.animation_timer.timeout.connect(self.update_animations)
-        self.animation_timer.start(16)  # ~60 FPS
         
-        # Make window fullscreen
+        # Status
+        self.is_active = False
+    
+    def start(self):
+        """Start the AR overlay"""
+        self.is_active = True
+        self.animation_timer.start(16)  # ~60 FPS
         self.showFullScreen()
+        print("[AR Overlay] Started")
+    
+    def stop(self):
+        """Stop the AR overlay"""
+        self.is_active = False
+        self.animation_timer.stop()
+        self.hide()
+        print("[AR Overlay] Stopped")
     
     def setup_ui(self):
         """Setup the overlay UI elements"""

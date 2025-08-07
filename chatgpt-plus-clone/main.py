@@ -72,6 +72,9 @@ class ChatGPTPlusClone(QMainWindow):
         
         # Load initial state
         self.load_initial_state()
+        
+        # Apply all toggles from config
+        self.apply_all_toggles()
     
     def setup_ui(self):
         """Setup the main user interface"""
@@ -215,6 +218,62 @@ class ChatGPTPlusClone(QMainWindow):
         print(f"[Main] Voice command received: {text}")
         self.chat_interface.add_user_message(text)
         self.handle_user_message(text)
+    
+    def apply_all_toggles(self):
+        """Apply all toggles from config on startup"""
+        app_settings = self.config.get_app_settings()
+        
+        print("[Main] Applying all toggles from config...")
+        
+        # Voice hotkey toggle
+        if app_settings.get("voice_hotkey_enabled", True):
+            self.start_voice_listener()
+        else:
+            self.stop_voice_listener()
+        
+        # Plugins toggle
+        if app_settings.get("enable_plugins", True):
+            self.enable_plugins()
+        else:
+            self.disable_plugins()
+        
+        # AR overlay toggle
+        if app_settings.get("enable_ar_overlay", False):
+            self.enable_ar_overlay()
+        else:
+            self.disable_ar_overlay()
+        
+        # Code interpreter toggle
+        if app_settings.get("enable_code_interpreter", True):
+            self.agent_orchestrator.enable_tool("code_interpreter")
+        else:
+            self.agent_orchestrator.disable_tool("code_interpreter")
+        
+        # Image editor toggle
+        if app_settings.get("enable_image_editor", True):
+            self.agent_orchestrator.enable_tool("image_editor")
+        else:
+            self.agent_orchestrator.disable_tool("image_editor")
+        
+        # Web browser toggle
+        if app_settings.get("enable_web_browser", True):
+            self.agent_orchestrator.enable_tool("web_browser")
+        else:
+            self.agent_orchestrator.disable_tool("web_browser")
+        
+        # Memory system toggle
+        if app_settings.get("enable_memory_system", True):
+            self.memory_manager.enable()
+        else:
+            self.memory_manager.disable()
+        
+        # VS Code integration toggle
+        if app_settings.get("enable_vs_code_integration", True):
+            self.vs_code_integration.enable()
+        else:
+            self.vs_code_integration.disable()
+        
+        print("[Main] All toggles applied")
     
     def connect_signals(self):
         """Connect all signal handlers"""
@@ -459,14 +518,28 @@ class ChatGPTPlusClone(QMainWindow):
             try:
                 self.plugins = self.plugin_loader.load_plugins()
                 
-                # Start each plugin if it has a start method
+                # Start each plugin based on its type
                 for plugin in self.plugins:
-                    if hasattr(plugin, 'module') and hasattr(plugin['module'], 'on_start'):
-                        try:
-                            plugin['module'].on_start()
-                            print(f"[Main] Started plugin: {plugin.get('name', 'Unknown')}")
-                        except Exception as e:
-                            print(f"[Main] Error starting plugin {plugin.get('name', 'Unknown')}: {e}")
+                    plugin_name = plugin.get('name', 'Unknown')
+                    plugin_type = plugin.get('type', 'unknown')
+                    
+                    try:
+                        if plugin_type == 'class':
+                            # New Plugin class pattern
+                            plugin_instance = plugin.get('instance')
+                            if plugin_instance and hasattr(plugin_instance, 'start'):
+                                plugin_instance.start()
+                                print(f"[Main] Started plugin class: {plugin_name}")
+                        elif plugin_type == 'function':
+                            # Legacy on_load pattern
+                            if hasattr(plugin['module'], 'on_start'):
+                                plugin['module'].on_start()
+                                print(f"[Main] Started plugin function: {plugin_name}")
+                        else:
+                            print(f"[Main] Unknown plugin type for {plugin_name}")
+                            
+                    except Exception as e:
+                        print(f"[Main] Error starting plugin {plugin_name}: {e}")
                 
                 self.plugins_active = True
                 self.statusBar().showMessage(f"Plugins enabled: {len(self.plugins)} loaded")
@@ -481,14 +554,28 @@ class ChatGPTPlusClone(QMainWindow):
         if self.plugins_active:
             print("[Main] Stopping plugins...")
             try:
-                # Stop each plugin if it has a stop method
+                # Stop each plugin based on its type
                 for plugin in self.plugins:
-                    if hasattr(plugin, 'module') and hasattr(plugin['module'], 'on_stop'):
-                        try:
-                            plugin['module'].on_stop()
-                            print(f"[Main] Stopped plugin: {plugin.get('name', 'Unknown')}")
-                        except Exception as e:
-                            print(f"[Main] Error stopping plugin {plugin.get('name', 'Unknown')}: {e}")
+                    plugin_name = plugin.get('name', 'Unknown')
+                    plugin_type = plugin.get('type', 'unknown')
+                    
+                    try:
+                        if plugin_type == 'class':
+                            # New Plugin class pattern
+                            plugin_instance = plugin.get('instance')
+                            if plugin_instance and hasattr(plugin_instance, 'stop'):
+                                plugin_instance.stop()
+                                print(f"[Main] Stopped plugin class: {plugin_name}")
+                        elif plugin_type == 'function':
+                            # Legacy on_load pattern
+                            if hasattr(plugin['module'], 'on_stop'):
+                                plugin['module'].on_stop()
+                                print(f"[Main] Stopped plugin function: {plugin_name}")
+                        else:
+                            print(f"[Main] Unknown plugin type for {plugin_name}")
+                            
+                    except Exception as e:
+                        print(f"[Main] Error stopping plugin {plugin_name}: {e}")
                 
                 self.plugins = []
                 self.plugins_active = False

@@ -5,9 +5,12 @@ Loads plugins from plugins/ directory with live reloading capabilities
 
 import os
 import importlib.util
+import importlib
 import logging
 import threading
 import time
+import sys
+import traceback
 from typing import Dict, Any, List, Optional, Callable
 from pathlib import Path
 
@@ -126,15 +129,28 @@ class PluginLoader:
                     save_config=lambda cfg: self.config.set_plugin_config(plugin_name, cfg)
                 )
             
-            # Get plugin metadata
-            if hasattr(module, 'on_load'):
+            # Check for Plugin class (new pattern)
+            if hasattr(module, 'Plugin'):
+                plugin_instance = module.Plugin()
+                metadata = {
+                    'name': plugin_name,
+                    'module': module,
+                    'instance': plugin_instance,
+                    'path': str(plugin_path),
+                    'type': 'class'
+                }
+                return metadata
+            
+            # Check for on_load function (legacy pattern)
+            elif hasattr(module, 'on_load'):
                 metadata = module.on_load()
                 metadata['module'] = module
                 metadata['path'] = str(plugin_path)
                 metadata['name'] = plugin_name
+                metadata['type'] = 'function'
                 return metadata
             else:
-                self.logger.warning(f"Plugin {plugin_path.name} missing on_load function")
+                self.logger.warning(f"Plugin {plugin_path.name} missing Plugin class or on_load function")
                 return None
                 
         except Exception as e:
