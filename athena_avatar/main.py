@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Athena 3D Avatar Application
-A cosmic AI companion with voice interaction and 3D visualization
+Athena 3D Avatar - Main Entry Point
+Cosmic AI companion with voice interaction and 3D visualization
 Optimized for 12GB RAM with <250ms latency on mid-range devices
 """
 
