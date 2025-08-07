@@ -1,260 +1,242 @@
 """
-Voice Hotkey System - Global Voice Assistant Activation
-Provides global hotkey support for voice interaction with Whisper integration
+Voice Hotkey Listener - Global Hotkey Management
+Handles global hotkey registration and voice activation
 """
 
 import keyboard
 import threading
-import time
 import logging
+import time
 from typing import Optional, Callable
-from pathlib import Path
-import queue
-import tempfile
-import os
+from config_manager import ConfigManager
 
-# Voice processing imports
-try:
-    import whisper
-    import sounddevice as sd
-    import numpy as np
-    VOICE_AVAILABLE = True
-except ImportError:
-    VOICE_AVAILABLE = False
-    logging.warning("Voice processing libraries not available")
-
-class VoiceHotkeyManager:
-    """Manages global voice hotkey functionality"""
+class VoiceHotkeyListener:
+    """Global hotkey listener for voice activation"""
     
-    def __init__(self, hotkey: str = "ctrl+shift+v"):
+    def __init__(self, hotkey: str = "ctrl+shift+v", voice_callback: Optional[Callable] = None):
         self.hotkey = hotkey
-        self.is_listening = False
-        self.voice_thread = None
-        self.audio_queue = queue.Queue()
+        self.voice_callback = voice_callback
         self.logger = logging.getLogger(__name__)
+        self.config = ConfigManager()
         
-        # Voice processing setup
-        if VOICE_AVAILABLE:
-            self.whisper_model = None
-            self.setup_whisper()
+        # Threading
+        self.is_running = False
+        self.listener_thread = None
         
-        # Callback for voice input
-        self.voice_callback = None
+        # Voice session state
+        self.is_recording = False
+        self.recording_thread = None
         
-        # Recording settings
-        self.sample_rate = 16000
-        self.chunk_duration = 0.5  # seconds
-        self.silence_threshold = 0.01
-        self.max_recording_time = 30  # seconds
+        # Load voice settings from config
+        self.load_voice_settings()
     
-    def setup_whisper(self):
-        """Initialize Whisper model"""
+    def load_voice_settings(self):
+        """Load voice settings from config"""
+        voice_settings = self.config.get_voice_settings()
+        self.hotkey = voice_settings.get('hotkey', self.hotkey)
+        self.sample_rate = voice_settings.get('sample_rate', 16000)
+        self.recording_duration = voice_settings.get('recording_duration', 5)
+        self.silence_threshold = voice_settings.get('silence_threshold', 10)
+        self.enabled = voice_settings.get('enabled', True)
+    
+    def start(self):
+        """Start the hotkey listener"""
+        if not self.enabled:
+            self.logger.info("Voice hotkey disabled in config")
+            return
+        
+        if self.is_running:
+            self.logger.warning("Voice hotkey listener already running")
+            return
+        
         try:
-            self.whisper_model = whisper.load_model("base")
-            self.logger.info("Whisper model loaded successfully")
-        except Exception as e:
-            self.logger.error(f"Error loading Whisper model: {e}")
-            self.whisper_model = None
-    
-    def set_voice_callback(self, callback: Callable[[str], None]):
-        """Set callback for voice input processing"""
-        self.voice_callback = callback
-    
-    def start_listening(self):
-        """Start listening for the hotkey"""
-        try:
-            keyboard.add_hotkey(self.hotkey, self.activate_voice_session)
-            self.is_listening = True
-            self.logger.info(f"Voice hotkey listener started: {self.hotkey}")
+            # Register the hotkey
+            keyboard.add_hotkey(self.hotkey, self._on_hotkey_pressed)
+            self.is_running = True
             
-            # Keep the main thread alive
-            keyboard.wait()
+            # Start listener thread
+            self.listener_thread = threading.Thread(target=self._listen_loop, daemon=True)
+            self.listener_thread.start()
+            
+            self.logger.info(f"🎙️ Voice hotkey listener started - Press {self.hotkey} to speak")
             
         except Exception as e:
-            self.logger.error(f"Error starting voice hotkey listener: {e}")
+            self.logger.error(f"Failed to start voice hotkey listener: {e}")
     
-    def stop_listening(self):
-        """Stop listening for the hotkey"""
+    def stop(self):
+        """Stop the hotkey listener"""
+        if not self.is_running:
+            return
+        
         try:
+            # Unregister hotkey
             keyboard.remove_hotkey(self.hotkey)
-            self.is_listening = False
+            self.is_running = False
+            
+            # Stop any active recording
+            if self.is_recording:
+                self._stop_recording()
+            
             self.logger.info("Voice hotkey listener stopped")
+            
         except Exception as e:
             self.logger.error(f"Error stopping voice hotkey listener: {e}")
     
-    def activate_voice_session(self):
-        """Activate voice recording session"""
-        if self.voice_thread and self.voice_thread.is_alive():
-            self.logger.info("Voice session already active")
+    def _listen_loop(self):
+        """Main listener loop"""
+        while self.is_running:
+            try:
+                time.sleep(0.1)  # Small delay to prevent high CPU usage
+            except KeyboardInterrupt:
+                break
+        
+        self.logger.debug("Voice hotkey listener loop ended")
+    
+    def _on_hotkey_pressed(self):
+        """Handle hotkey press"""
+        if self.is_recording:
+            self.logger.debug("Already recording, ignoring hotkey press")
             return
         
-        self.voice_thread = threading.Thread(target=self.record_voice)
-        self.voice_thread.daemon = True
-        self.voice_thread.start()
+        # Start recording in a separate thread
+        self.recording_thread = threading.Thread(target=self._start_voice_session, daemon=True)
+        self.recording_thread.start()
     
-    def record_voice(self):
-        """Record voice input and convert to text"""
+    def _start_voice_session(self):
+        """Start a voice recording session"""
         try:
-            self.logger.info("Starting voice recording...")
+            self.is_recording = True
+            self.logger.info("🎤 Starting voice session...")
             
-            # Create temporary file for audio
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-                temp_audio_path = temp_file.name
+            # Visual feedback (could be enhanced with UI notifications)
+            print(f"\n🎤 Voice session started - Press {self.hotkey} again to stop")
             
-            # Record audio
-            audio_data = self.record_audio()
-            
-            if audio_data is None or len(audio_data) == 0:
-                self.logger.warning("No audio recorded")
-                return
-            
-            # Save audio to file
-            self.save_audio(audio_data, temp_audio_path)
-            
-            # Convert to text using Whisper
-            if self.whisper_model and VOICE_AVAILABLE:
-                text = self.transcribe_audio(temp_audio_path)
-                
-                if text and text.strip():
-                    self.logger.info(f"Transcribed: {text}")
-                    
-                    # Call callback with transcribed text
-                    if self.voice_callback:
-                        self.voice_callback(text.strip())
-                    else:
-                        print(f"Voice input: {text.strip()}")
-                else:
-                    self.logger.info("No speech detected")
-            else:
-                self.logger.warning("Whisper not available - cannot transcribe audio")
-            
-            # Cleanup
+            # Import voice agent here to avoid circular imports
             try:
-                os.unlink(temp_audio_path)
-            except:
-                pass
+                from voice_agent import VoiceAgent
+                voice_agent = VoiceAgent()
                 
-        except Exception as e:
-            self.logger.error(f"Error in voice recording: {e}")
-    
-    def record_audio(self) -> Optional[np.ndarray]:
-        """Record audio from microphone"""
-        try:
-            # Calculate chunk size
-            chunk_size = int(self.sample_rate * self.chunk_duration)
-            
-            # Initialize recording
-            audio_chunks = []
-            silence_frames = 0
-            max_silence_frames = int(2.0 / self.chunk_duration)  # 2 seconds of silence
-            
-            def audio_callback(indata, frames, time, status):
-                if status:
-                    self.logger.warning(f"Audio callback status: {status}")
+                # Record audio
+                audio_data = voice_agent.record_audio(duration=self.recording_duration)
                 
-                # Check for silence
-                volume_norm = np.linalg.norm(indata) * 10
-                if volume_norm < self.silence_threshold:
-                    nonlocal silence_frames
-                    silence_frames += 1
+                if audio_data is not None:
+                    # Transcribe
+                    text = voice_agent.transcribe(audio_data)
+                    
+                    if text and text.strip():
+                        self.logger.info(f"🎯 Transcribed: {text}")
+                        
+                        # Call callback if provided
+                        if self.voice_callback:
+                            self.voice_callback(text)
+                        else:
+                            # Default behavior: speak the transcription back
+                            voice_agent.speak(f"You said: {text}")
+                    else:
+                        self.logger.info("No speech detected")
+                        if self.config.get_voice_settings().get('tts_enabled', True):
+                            voice_agent.speak("No speech detected")
                 else:
-                    silence_frames = 0
-                
-                audio_chunks.append(indata.copy())
+                    self.logger.warning("Failed to record audio")
+                    
+            except ImportError:
+                self.logger.error("Voice agent not available")
+                print("❌ Voice agent not available - install required dependencies")
+            except Exception as e:
+                self.logger.error(f"Error in voice session: {e}")
+                print(f"❌ Voice session error: {e}")
             
-            # Start recording
-            with sd.InputStream(callback=audio_callback,
-                              channels=1,
-                              samplerate=self.sample_rate,
-                              blocksize=chunk_size):
-                
-                self.logger.info("Recording... (speak now)")
-                start_time = time.time()
-                
-                while (time.time() - start_time < self.max_recording_time and 
-                       silence_frames < max_silence_frames):
-                    time.sleep(self.chunk_duration)
-                
-                self.logger.info("Recording stopped")
-            
-            if audio_chunks:
-                return np.concatenate(audio_chunks, axis=0)
-            else:
-                return None
-                
-        except Exception as e:
-            self.logger.error(f"Error recording audio: {e}")
-            return None
+        finally:
+            self.is_recording = False
+            self.logger.info("🎤 Voice session ended")
     
-    def save_audio(self, audio_data: np.ndarray, file_path: str):
-        """Save audio data to file"""
-        try:
-            import wave
-            
-            with wave.open(file_path, 'wb') as wf:
-                wf.setnchannels(1)
-                wf.setsampwidth(2)  # 16-bit
-                wf.setframerate(self.sample_rate)
-                wf.writeframes((audio_data * 32767).astype(np.int16).tobytes())
-                
-        except Exception as e:
-            self.logger.error(f"Error saving audio: {e}")
+    def _stop_recording(self):
+        """Stop current recording"""
+        self.is_recording = False
+        self.logger.info("Stopping voice recording")
     
-    def transcribe_audio(self, audio_path: str) -> str:
-        """Transcribe audio file using Whisper"""
-        try:
-            if not self.whisper_model:
-                return ""
-            
-            result = self.whisper_model.transcribe(audio_path)
-            return result["text"]
-            
-        except Exception as e:
-            self.logger.error(f"Error transcribing audio: {e}")
-            return ""
+    def set_voice_callback(self, callback: Callable):
+        """Set callback function for voice commands"""
+        self.voice_callback = callback
+        self.logger.info("Voice callback set")
     
-    def cleanup(self):
-        """Cleanup resources"""
-        self.stop_listening()
+    def update_settings(self):
+        """Reload settings from config"""
+        self.load_voice_settings()
+        
+        # Restart if settings changed
+        if self.is_running:
+            self.stop()
+            time.sleep(0.1)  # Small delay
+            self.start()
+    
+    def get_status(self) -> dict:
+        """Get current status"""
+        return {
+            "enabled": self.enabled,
+            "running": self.is_running,
+            "recording": self.is_recording,
+            "hotkey": self.hotkey,
+            "sample_rate": self.sample_rate,
+            "recording_duration": self.recording_duration
+        }
 
-# Global voice hotkey manager
-voice_manager = VoiceHotkeyManager()
+# Global instance for easy access
+_voice_listener = None
 
-def start_voice_session():
-    """Start a voice recording session"""
-    voice_manager.activate_voice_session()
+def get_voice_listener() -> Optional[VoiceHotkeyListener]:
+    """Get the global voice listener instance"""
+    return _voice_listener
 
-def set_voice_callback(callback: Callable[[str], None]):
-    """Set callback for voice input"""
-    voice_manager.set_voice_callback(callback)
+def start_voice_listener(callback: Optional[Callable] = None) -> VoiceHotkeyListener:
+    """Start the global voice listener"""
+    global _voice_listener
+    
+    if _voice_listener is None:
+        _voice_listener = VoiceHotkeyListener()
+    
+    if callback:
+        _voice_listener.set_voice_callback(callback)
+    
+    _voice_listener.start()
+    return _voice_listener
 
-def start_voice_hotkey_listener():
-    """Start the global voice hotkey listener"""
-    voice_manager.start_listening()
+def stop_voice_listener():
+    """Stop the global voice listener"""
+    global _voice_listener
+    
+    if _voice_listener:
+        _voice_listener.stop()
+        _voice_listener = None
 
-def stop_voice_hotkey_listener():
-    """Stop the global voice hotkey listener"""
-    voice_manager.stop_listening()
-
-def listen_for_hotkey():
-    """Legacy function for backward compatibility"""
-    print(f"[Voice Assistant] Hotkey listener active — Press {voice_manager.hotkey} to speak.")
-    start_voice_hotkey_listener()
+def update_voice_settings():
+    """Update voice settings from config"""
+    global _voice_listener
+    
+    if _voice_listener:
+        _voice_listener.update_settings()
 
 if __name__ == "__main__":
-    # Test voice hotkey functionality
-    print("Starting voice hotkey listener...")
-    print(f"Press {voice_manager.hotkey} to activate voice input")
+    # Test the voice hotkey listener
+    import logging
+    
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
+    
+    print("🧪 Testing Voice Hotkey Listener...")
+    print("Press Ctrl+Shift+V to test voice recording")
     print("Press Ctrl+C to exit")
     
     try:
-        # Set a simple callback for testing
-        def test_callback(text):
-            print(f"Voice input received: {text}")
+        listener = VoiceHotkeyListener()
+        listener.start()
         
-        voice_manager.set_voice_callback(test_callback)
-        voice_manager.start_listening()
-        
+        # Keep running
+        while True:
+            time.sleep(1)
+            
     except KeyboardInterrupt:
-        print("\nStopping voice hotkey listener...")
-        voice_manager.cleanup()
+        print("\n🛑 Stopping voice listener...")
+        if listener:
+            listener.stop()
+        print("✅ Voice listener stopped")

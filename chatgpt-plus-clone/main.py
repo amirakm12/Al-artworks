@@ -27,6 +27,11 @@ from tools.web_browser import WebBrowser
 from tools.image_editor import ImageEditor
 from tools.voice_agent import VoiceAgent
 from vs_code_link.vs_code_integration import VSCodeIntegration
+from config_manager import ConfigManager
+from voice_hotkey import start_voice_listener, stop_voice_listener, update_voice_settings
+from plugin_loader import PluginLoader
+from ui.settings_dialog import SettingsDialog
+from ui.plugin_test_dialog import PluginTestDialog
 
 class ChatGPTPlusClone(QMainWindow):
     """Main application window for ChatGPT+ Clone"""
@@ -36,10 +41,18 @@ class ChatGPTPlusClone(QMainWindow):
         self.setWindowTitle("ChatGPT+ Clone - AI Assistant")
         self.setGeometry(100, 100, 1400, 900)
         
+        # Initialize config manager
+        self.config = ConfigManager()
+        
         # Initialize core components
         self.memory_manager = MemoryManager()
         self.agent_orchestrator = AgentOrchestrator(self.memory_manager)
         self.vs_code_integration = VSCodeIntegration()
+        
+        # Initialize plugin system
+        self.plugin_loader = PluginLoader()
+        self.plugins = self.plugin_loader.load_plugins()
+        self.plugin_loader.start_watching(self.reload_plugins)
         
         # Setup UI
         self.setup_ui()
@@ -137,6 +150,14 @@ class ChatGPTPlusClone(QMainWindow):
         
         # Settings menu
         settings_menu = menubar.addMenu('Settings')
+        
+        settings_action = settings_menu.addAction('Settings')
+        settings_action.triggered.connect(self.open_settings)
+        
+        plugin_test_action = settings_menu.addAction('Plugin Test Mode')
+        plugin_test_action.triggered.connect(self.open_plugin_test)
+        
+        settings_menu.addSeparator()
         
         model_settings_action = settings_menu.addAction('Model Settings')
         model_settings_action.triggered.connect(self.open_model_settings)
